@@ -4,6 +4,11 @@
 /env/
 /env-3.11.5/
 /figure/
+/mlflow_model/
 /mlruns/
 /NB_Aide/
 /results/
+model_light_gbm_best.joblib
+dashboard.py
+dashboard_BG.py
+api_BG.py
