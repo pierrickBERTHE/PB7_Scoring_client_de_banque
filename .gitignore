@@ -9,6 +9,6 @@
 /NB_Aide/
 /results/
 model_light_gbm_best.joblib
-dashboard.py
+dashboard_OCR.py
 dashboard_BG.py
 api_BG.py
