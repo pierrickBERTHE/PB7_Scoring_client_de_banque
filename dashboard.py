@@ -1,11 +1,16 @@
 import streamlit as st
-import mlflow.pyfunc
 import pandas as pd
-import shap
+import numpy as np
+import requests
+import os
 
-# from pycaret.classification import plot_model
+st.title('Dashboard - Scoring crédit')
 
-# Décorateur pour mettre en cache les données
+DATA_URL = 'Data/train.csv'
+
+MODEL_URL_FLASK = ' ' # the link of the API flask
+
+
 @st.cache_data
 def load_data(nom_fichier):
     """Charger les données à partir d'un fichier CSV."""
@@ -16,59 +21,46 @@ def load_data(nom_fichier):
 def load_model(model_uri):
     return mlflow.pyfunc.load_model(model_uri)
 
-# Chargement des données
-nom_fichier = 'data/cleaned/application_train_cleaned.csv'
-data = load_data(nom_fichier)
+def get_data_client(id_client):
+    # filter on the choosen client 
+    # TO FILL
+    return data_client
 
-# Chargement du modèle
-model_name = "model_light_gbm_best"
-model_version = 3
-model_uri = f"models:/{model_name}/{model_version}"
-lightgbm_model = load_model(model_uri)
+def request_prediction(model_uri, data):
+    headers = {"Content-Type": "application/json"}
 
-# Créer un widget de sélection pour choisir un SK_ID_CURR
-selected_sk_id_curr = st.selectbox(
-    'Choisissez un SK_ID_CURR',
-    data['SK_ID_CURR'].unique()
-)
+    data_json = {'dataframe_split' : data.to_dict(orient='split')}
+    
+# TO FILL
+# use the mode POST on the MODEL URI  
+    response = requests.request(.....))
 
-# Obtenir les données pour le SK_ID_CURR sélectionné
-selected_data = data[data['SK_ID_CURR'] == selected_sk_id_curr]
+    if response.status_code != 200:
+        raise Exception(
+            "Request failed with status {}, {}".format(response.status_code, response.text))
 
-# Ajouter un bouton pour déclencher la prédiction
-if st.button('Calculer la prédiction'):
+    return response.json()
 
-    # Utiliser le modèle pour faire une prédiction
-    prediction = lightgbm_model.predict(selected_data)
 
-    # Afficher la prédiction
-    if prediction == 0:
-        st.markdown(
-            '<div style="background-color: #98FB98; padding: 10px;'
-            'border-radius: 5px; color: #000000;"'
-            '>Le prêt est accordé.</div>',
-            unsafe_allow_html=True
-        )
+def main():
 
-    elif prediction == 1:
-        st.markdown(
-            '<div style="background-color: #FF6347; padding: 10px;'
-            'border-radius: 5px; color: #000000;"'
-            '>Le prêt n\'est pas accordé.</div>',
-            unsafe_allow_html=True
-        )
+    id_client = st.number_input('Id Client', value=0)
+    data = get_data_client(id_client)
+    
+    st.dataframe(data)
+    
+    predict_btn = st.button('Prédire')
 
-    else:
-        st.write('Prédiction inconnue :', prediction)
+    if predict_btn:
+        response = request_prediction(MODEL_URL_FLASK, data)
+        
+        st.write(response['prediction'])
 
-# Ajouter un bouton pour déclencher le calcul des features importances
-if st.button('Calculer les importances des caractéristiques'):
+        if int(response['prediction']) == '0' :
+            st.write('Accordé')
+        else :
+            st.write('refusé')
 
-    # Créer un explainer SHAP
-    explainer = shap.TreeExplainer(lightgbm_model)
 
-    # Calculer les valeurs SHAP
-    shap_values = explainer.shap_values(selected_data)
-
-    # Afficher le résumé des importances des caractéristiques
-    st.write(shap.summary_plot(shap_values, selected_data))
+if __name__ == '__main__':
+    main()
