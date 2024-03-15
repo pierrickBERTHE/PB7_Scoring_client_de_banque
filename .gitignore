@@ -9,12 +9,3 @@
 /NB_Aide/
 /results/
 model_light_gbm_best.joblib
-dashboard_OCR.py
-dashboard_BG.py
-api_BG.py
-bayes_search_dummy.pkl
-bayes_search_gbm.pkl
-bayes_search_rf.pkl
-bayes_search_rl.pkl
-mlflow.db
-dashboard_FIRST.py
