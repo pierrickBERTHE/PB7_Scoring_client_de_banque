@@ -188,12 +188,31 @@ def main():
         shap_values_subset_array = np.array(
             response['feature_importance_locale']['shap_values_subset']
         )
+        st.write('shap_values_subset_array : ')
+        st.dataframe(shap_values_subset_array)
+        st.write(
+            'len(shap_values_subset_array) : ', len(shap_values_subset_array)
+        )
+
+        # st.write(
+        #     "len(response['feature_importance_locale']['client_data_subset'][0]) : ", len(response['feature_importance_locale']['client_data_subset'][0])
+        # )
+        # st.write(
+        #     "len(response['feature_importance_locale']['top_features']) : ", len(response['feature_importance_locale']['top_features'])
+        # )
 
         # Transforme client_data_subset en DataFrame
         client_data_subset_df = pd.DataFrame(
-            response['feature_importance_locale']['client_data_subset'][0],
+            [response['feature_importance_locale']['client_data_subset']],
             columns=response['feature_importance_locale']['top_features']
         )
+        st.write('client_data_subset_df : ')
+        st.dataframe(client_data_subset_df)
+        st.write(
+            'shap_values_subset_array.shape : ', shap_values_subset_array.shape
+        )
+
+        st.set_option('deprecation.showPyplotGlobalUse', False)
 
         # Générer le force_plot
         force_plot = shap.force_plot(
@@ -202,17 +221,25 @@ def main():
             client_data_subset_df,
             matplotlib=True
         )
+        st.pyplot(force_plot)
 
-        # Convertir le force_plot en figure matplotlib et l'afficher dans Streamlit
-        fig, ax = plt.subplots()
-        shap.plots._force._force_plot_matplotlib(
-            response['prediction']["explainer"],
-            shap_values_subset_array,
-            client_data_subset_df,
-            matplotlib=True,
-            ax=ax
+        data_sans_sk_id_curr = data.drop(columns=['SK_ID_CURR'])
+        st.write('data_sans_sk_id_curr : ')
+        st.dataframe(data_sans_sk_id_curr.head())
+        st.write(
+            'data_sans_sk_id_curr.shape : ', data_sans_sk_id_curr.shape
         )
-        st.pyplot(fig)
+
+        # Extraire le dernier estimateur du pipeline
+        final_estimator = model[-1]
+
+        # Expliquer les prédictions à l'aide de SHAP et son TreeExplainer
+        explainer = shap.TreeExplainer(final_estimator)
+        shap_values_all = explainer.shap_values(data_sans_sk_id_curr, check_additivity=False)
+
+        # Pour la deuxième sortie
+        shap.summary_plot(shap_values_all[1], data_sans_sk_id_curr, plot_type='dot')
+        st.pyplot()
 
 
 if __name__ == '__main__':

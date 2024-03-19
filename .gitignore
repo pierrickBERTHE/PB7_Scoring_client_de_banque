@@ -9,4 +9,5 @@
 /NB_Aide/
 /results/
 model_light_gbm_best_n_iter_10.joblib
+model_light_gbm_best_30_iter.joblib
 test pour debug.ipynb
