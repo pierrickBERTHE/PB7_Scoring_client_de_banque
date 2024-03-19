@@ -6,6 +6,8 @@ import mlflow
 import os
 import joblib
 import shap
+import matplotlib.pyplot as plt
+
 
 # Titre de l'application
 st.title('Dashboard - Scoring crédit')
@@ -182,13 +184,35 @@ def main():
         # #
         # shap_values_subset, client_data_subset = get_feature_importance_locale(response, client_data)
 
-        # Afficher les valeurs SHAP pour les top_features
+        # transforme shap_values_subset en array
+        shap_values_subset_array = np.array(
+            response['feature_importance_locale']['shap_values_subset']
+        )
+
+        # Transforme client_data_subset en DataFrame
+        client_data_subset_df = pd.DataFrame(
+            response['feature_importance_locale']['client_data_subset'][0],
+            columns=response['feature_importance_locale']['top_features']
+        )
+
+        # Générer le force_plot
         force_plot = shap.force_plot(
             response['prediction']["explainer"],
-            response['feature_importance_locale']['shap_values_subset'],
-            response['feature_importance_locale']['client_data_subset'],
+            shap_values_subset_array,
+            client_data_subset_df,
             matplotlib=True
         )
+
+        # Convertir le force_plot en figure matplotlib et l'afficher dans Streamlit
+        fig, ax = plt.subplots()
+        shap.plots._force._force_plot_matplotlib(
+            response['prediction']["explainer"],
+            shap_values_subset_array,
+            client_data_subset_df,
+            matplotlib=True,
+            ax=ax
+        )
+        st.pyplot(fig)
 
 
 if __name__ == '__main__':
