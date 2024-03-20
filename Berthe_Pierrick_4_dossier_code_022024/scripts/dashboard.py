@@ -1,171 +1,181 @@
-import streamlit as st
+# ============== étape 1 : Importation des librairies ====================
+
 import pandas as pd
 import numpy as np
 import requests
-import mlflow
 import os
 import joblib
 import shap
 import matplotlib.pyplot as plt
+import streamlit as st
 
+# Ne pas afficher les warnings
+st.set_option('deprecation.showPyplotGlobalUse', False)
+
+# ====================== étape 2 : Généralités ============================
 
 # Titre de l'application
-st.title('Dashboard - Scoring crédit')
+st.title('Projet 7\n') 
+st.title('Élaborez le modèle de scoring - Dashboard\n') 
 
-# Récupération du chemin absolu et du répertoire du fichier api.py
-chemin_racine = "C:\\Users\\pierr\\VSC_Projects\\Projet7_OCR_DataScientist"
+# Chemin du répertoire racine
+ROOT_DIR = "C:\\Users\\pierr\\VSC_Projects\\Projet7_OCR_DataScientist"
 
-# Chargement des données
-data_train_path = os.path.join(
-    chemin_racine, "data", "cleaned", "application_train_cleaned.csv"
+# Chemin du fichier de données nettoyées
+DATA_PATH = os.path.join(
+    ROOT_DIR, "data", "cleaned", "application_train_cleaned.csv"
 )
 
-# Chargement du modèle pré-entraîné
-MODEL_PATH = os.path.join(chemin_racine, 'mlflow_model', 'model.pkl')
-model = joblib.load(MODEL_PATH)
+# Chemin du fichier de données nettoyées
+FIG_PATH = os.path.join(ROOT_DIR, "figure")
 
-# URL du predict de l'API Flask
+# URL du service web
 MODEL_URL_FLASK = 'http://127.0.0.1:5000/predict'
 
-# Décorateur pour mettre en cache les données
+# Chemin du modèle pré-entraîné et chargement
+MODEL_PATH = os.path.join(ROOT_DIR, 'mlflow_model', 'model.pkl')
+model = joblib.load(MODEL_PATH)
+
+# ==================== étape 3 : chargement data ==========================
+
 @st.cache_data
-def load_data(nom_fichier, _model):
-    """Charger les données à partir d'un fichier CSV et appliquer le prétraitement."""
+def load_data(file_path, _model):
+    """
+    Charge les données à partir d'un fichier CSV et les transforme en
+    utilisant un modèle donné.
+
+    Args:
+        file_path (str): Chemin vers le fichier CSV.
+        _model (imblearn.pipeline.Pipeline): Modèle pour transformer les
+        données.
+
+    Returns:
+        pd.DataFrame: Données transformées.
+    """
     # Lire les noms de colonnes
-    cols = pd.read_csv(nom_fichier, nrows=0).columns
+    cols = pd.read_csv(file_path, nrows=0).columns
 
     # Supprimer la première colonne
     cols = cols[1:]
 
     # Lire le fichier CSV sans la première colonne
-    data = pd.read_csv(nom_fichier, usecols=cols)
+    data_df = pd.read_csv(file_path, usecols=cols)
 
-    # Isoler la colonne SK_ID_CURR et TARGET
-    sk_id_curr = data['SK_ID_CURR']
-    target = data['TARGET']
+    # Isolement de la colonne SK_ID_CURR
+    sk_id_curr = data_df['SK_ID_CURR']
 
-    # Supprimer ces 2 cols
-    data = data.drop(columns=["TARGET", "SK_ID_CURR"])
-    
-    # Conserver les noms de colonnes
-    column_names = data.columns
+    # Suppression des colonnes TARGET et SK_ID_CURR
+    data_df_dropped = data_df.drop(columns=["TARGET", "SK_ID_CURR"])
 
-    # Appliquer les étapes de prétraitement (imputation + normalisation)
-    preprocessed_data = model.named_steps['preprocess'].transform(data)
+    # Imputation des valeurs manquantes (preprocessing du modele)
+    data_array = _model.named_steps['preprocess'].transform(data_df_dropped)
 
-    # Recréer le DataFrame avec les noms de colonnes
-    preprocessed_data = pd.DataFrame(preprocessed_data, columns=column_names)
+    # Création d'un DataFrame à partir du tableau numpy
+    data_df_new = pd.DataFrame(data_array, columns=data_df_dropped.columns)
 
-    # Remettre col SK_ID_CURR
-    preprocessed_data['SK_ID_CURR'] = sk_id_curr
-    
-    return preprocessed_data
+    # Re-insertion de la colonne SK_ID_CURR
+    data_df_new['SK_ID_CURR'] = sk_id_curr
 
-# Chargement des données (avec preprocessing imputation du modèle)
-data = load_data(data_train_path, _model=model)
+    return data_df_new
 
+# Chargement des données
+data = load_data(DATA_PATH, model)
 
-def get_data_client(client_id):
-    # Obtenir les données pour le SK_ID_CURR sélectionné
+# ====================== étape 4 : Fonctions ============================
+
+def get_client_data(client_id):
+    """
+    Récupère les données d'un client spécifique.
+
+    Args:
+        client_id (int): ID du client.
+
+    Returns:
+        pd.DataFrame: Données du client.
+    """
+    # Isoler les données du client et compter Nan
     client_data = data[data['SK_ID_CURR'] == client_id]
+    nan_client = client_data.isna().sum().sum()
+
+    # Afficher les données du client
     st.dataframe(client_data)
+    st.write(f'Nombre NaN du client {client_id} : {nan_client}')
 
-    # Compter et afficher le nombre de valeurs manquantes
-    nan_nbr = client_data.isna().sum().sum()
-    st.write(f'Nombre NaN pour client {client_id} : {nan_nbr}')
-
-    # Supprimer la col SK_ID_CURR
-    client_data = client_data.drop(columns=['SK_ID_CURR'])
-
-    return client_data
+    return client_data.drop(columns=['SK_ID_CURR'])
 
 
-def request_prediction(MODEL_URL_FLASK, data):
-    headers = {"Content-Type": "application/json"}
+def request_prediction(url, data):
+    """
+    Envoie une requête POST de prédiction à un service web.
 
-    # Convertir le DataFrame en liste de dictionnaires
-    data_json = data.to_dict(orient='records')
+    Args:
+        url (str): URL du service web.
+        data (pd.DataFrame): Données à prédire.
 
-    # Faire une requête POST avec les données JSON
-    response = requests.post(MODEL_URL_FLASK, json=data_json)
+    Returns:
+        dict: Réponse du service web.
+    """
+    # Envoi de la requête POST
+    response = requests.post(url, json=data.to_dict(orient='records'))
 
-    # Vérifier si la requête a réussi
-    if response.status_code != 200:
-        raise Exception(
-            "Request failed with status {}, {}".format(
-                response.status_code,
-                response.text
-            )
+    # Vérification de la réponse
+    response.raise_for_status()
+
+    return response.json()
+
+
+def display_or_save_plot(shap_values_all, data, FIG_PATH):
+    """
+    Affiche ou sauvegarde le plot de feature importance globale.
+    
+    Args:
+        shap_values_all (np.array): SHAP values pour toutes les données.
+        data (pd.DataFrame): Données.
+        FIG_PATH (str): Chemin du répertoire pour sauvegarder le plot.
+    """
+    # Chemin de l'image de feature importance globale
+    image_path = os.path.join(FIG_PATH, 'feature_importance_globale.png')
+
+    # SI l'image existe ALORS on l'affiche
+    if os.path.isfile(image_path):
+        st.image(image_path)
+
+    # SINON Enregistrer et afficher le plot
+    else:
+        # Affichage feature importance globale
+        shap.summary_plot(
+            shap_values_all,
+            data.drop(columns=['SK_ID_CURR']),
+            plot_type='dot'
         )
+        plt.savefig(image_path)
+        st.pyplot()
 
-    # Extraire le JSON de la réponse
-    response_json = response.json()
-
-    # Vérifier si 'error' est dans la réponse
-    if 'error' in response_json:
-        raise Exception(response_json['error'])
-
-    return response_json
-
-
-# def get_feature_importance_locale(response, client_data):
-
-#     # Nombre de features à afficher
-#     nbr_feature=5
-
-#     shap_values_df = response['feature_importance'].pop('feature_values', None)
-
-#     # # Convertir la liste en DataFrame
-#     # shap_values_df = pd.DataFrame(
-#     #     response["feature_importance"]["shap_values"],
-#     #     columns=response["feature_importance"]["feature_names"]
-#     # )
-
-#     # Calculer la valeur absolue des valeurs SHAP
-#     abs_shap_values = shap_values_df.abs()
-
-#     # Obtenir les noms des nbr_feature ayant les valeurs SHAP les plus élevées
-#     top_features = (
-#         abs_shap_values.sum()
-#         .sort_values(ascending=False)
-#         .head(nbr_feature)
-#         .index
-#     )
-
-#     # Sélectionner les top_features de X_test et shap_values_df (arrondis)
-#     client_data_subset = client_data[top_features].round(2)
-#     shap_values_subset = response["feature_importance"]["shap_values"][top_features].values.round(2)[0]
-
-#     return shap_values_subset, client_data_subset
-
+# ============= étape 5 : Fonction principale du dashboard ==================
 
 def main():
+    """
+    Fonction principale de l'application Streamlit.
+    """
+    # Titre de la section
+    client_id = st.selectbox('Sélection client :', data['SK_ID_CURR'].unique())
 
-    # Créer un widget de sélection pour choisir un SK_ID_CURR
-    client_id = st.selectbox(
-        'Choisissez un SK_ID_CURR',
-        data['SK_ID_CURR'].unique()
-    )
+    # Récupération des données du client
+    client_data = get_client_data(client_id)
 
-    # Isoler les données du client sélectionné
-    client_data = get_data_client(client_id)
-
-    # Ajouter un bouton pour déclencher la prédiction
+    # Bouton pour calculer la prédiction => envoi de la requête POST
     if st.button('Calculer la prédiction'):
-
-        # Utiliser le modèle pour faire une prédiction
         response = request_prediction(MODEL_URL_FLASK, client_data)
 
-        # Afficher la prédiction
-        if int(response['prediction']['prediction']) == 0:
+        # Affichage de la prédiction en français
+        if response["prediction"]["prediction"] == 0:
             st.markdown(
                 '<div style="background-color: #98FB98; padding: 10px;'
                 'border-radius: 5px; color: #000000;"'
                 '>Le prêt est accordé.</div>',
                 unsafe_allow_html=True
             )
-
-        elif int(response['prediction']['prediction']) == 1:
+        else:
             st.markdown(
                 '<div style="background-color: #FF6347; padding: 10px;'
                 'border-radius: 5px; color: #000000;"'
@@ -173,78 +183,62 @@ def main():
                 unsafe_allow_html=True
             )
 
-        else:
-            st.write("Pas de prédiction effectuée.")
+        # ajouter un espace
+        st.write('')
 
-        # Afficher la probabilité
+        # Affichage de la prédiction
         st.dataframe(response['prediction'])
-        st.dataframe(response['feature_importance'])
-        st.dataframe(response['feature_importance_locale'])
 
-        # #
-        # shap_values_subset, client_data_subset = get_feature_importance_locale(response, client_data)
+        # Transformation des données pour SHAP en array
+        shap_values_subset_array = np.array(response['feature_importance_locale']['shap_values_subset'])
 
-        # transforme shap_values_subset en array
-        shap_values_subset_array = np.array(
-            response['feature_importance_locale']['shap_values_subset']
-        )
-        st.write('shap_values_subset_array : ')
-        st.dataframe(shap_values_subset_array)
-        st.write(
-            'len(shap_values_subset_array) : ', len(shap_values_subset_array)
-        )
-
-        # st.write(
-        #     "len(response['feature_importance_locale']['client_data_subset'][0]) : ", len(response['feature_importance_locale']['client_data_subset'][0])
-        # )
-        # st.write(
-        #     "len(response['feature_importance_locale']['top_features']) : ", len(response['feature_importance_locale']['top_features'])
-        # )
-
-        # Transforme client_data_subset en DataFrame
+        # Transformation des données client en DataFrame
         client_data_subset_df = pd.DataFrame(
             [response['feature_importance_locale']['client_data_subset']],
             columns=response['feature_importance_locale']['top_features']
         )
-        st.write('client_data_subset_df : ')
-        st.dataframe(client_data_subset_df)
-        st.write(
-            'shap_values_subset_array.shape : ', shap_values_subset_array.shape
-        )
 
-        st.set_option('deprecation.showPyplotGlobalUse', False)
-
-        # Générer le force_plot
-        force_plot = shap.force_plot(
+        # Affichage feature importance locale
+        st.write('Feature importance locale :')
+        shap.force_plot(
             response['prediction']["explainer"],
             shap_values_subset_array,
             client_data_subset_df,
             matplotlib=True
         )
-        st.pyplot(force_plot)
-
-        data_sans_sk_id_curr = data.drop(columns=['SK_ID_CURR'])
-        st.write('data_sans_sk_id_curr : ')
-        st.dataframe(data_sans_sk_id_curr.head())
-        st.write(
-            'data_sans_sk_id_curr.shape : ', data_sans_sk_id_curr.shape
-        )
-
-        # Extraire le dernier estimateur du pipeline
-        final_estimator = model[-1]
-
-        # Expliquer les prédictions à l'aide de SHAP et son TreeExplainer
-        explainer = shap.TreeExplainer(final_estimator)
-        shap_values_all = explainer.shap_values(data_sans_sk_id_curr, check_additivity=False)
-
-        # Pour la deuxième sortie
-        shap.summary_plot(shap_values_all[1], data_sans_sk_id_curr, plot_type='dot')
         st.pyplot()
 
+        # # Calcul des SHAP values pour toutes les données
+        explainer = shap.TreeExplainer(model[-1])
+        data_dropped = data.drop(columns=['SK_ID_CURR'])
+        shap_values_all = explainer.shap_values(
+            data_dropped,
+            check_additivity=False
+        )[1]
+
+        # # Chemin de l'image de feature importance globale
+        # image_path = os.path.join(FIG_PATH, 'feature_importance_globale.png')
+
+        # # SI l'image existe ALORS on l'affiche
+        # if os.path.isfile(image_path):
+        #     st.image(image_path)
+
+        # # SINON Enregistrer et afficher le plot
+        # else:
+        #     # Affichage feature importance globale
+        #     shap.summary_plot(
+        #         shap_values_all,
+        #         data.drop(columns=['SK_ID_CURR']),
+        #         plot_type='dot'
+        #     )
+        #     plt.savefig(image_path)
+        #     st.pyplot()
+
+        # Affichage ou sauvegarde du plot de feature importance globale
+        st.write('Feature importance globale :')
+        display_or_save_plot(shap_values_all, data, FIG_PATH)
+
+# =================== étape 6 : Run du dashboard ==========================
 
 if __name__ == '__main__':
     main()
-
-
-# # pour appeler le dashboard : 
-# streamlit run Berthe_Pierrick_4_dossier_code_022024/scripts/dashboard.py
