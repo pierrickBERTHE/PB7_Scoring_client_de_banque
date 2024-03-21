@@ -1,3 +1,10 @@
+"""
+Description: Ce fichier contient le dashboard de l'application Streamlit.
+
+Author: Pierrick Berthe
+Date: 2024-03-21
+"""
+
 # ============== étape 1 : Importation des librairies ====================
 
 import pandas as pd
