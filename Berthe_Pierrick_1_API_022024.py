@@ -247,7 +247,7 @@ def predict():
             'prediction': {
                 'explainer' : explainer.expected_value[1],
                 'prediction': prediction.tolist(),
-                'probabilité': (proba_class_1 * 100).tolist()
+                'probabilité': round((proba_class_1 * 100), 2).tolist()
             },
             'feature_importance': {
                 'shap_values': shap_values_class_1_2d[0].tolist(),
