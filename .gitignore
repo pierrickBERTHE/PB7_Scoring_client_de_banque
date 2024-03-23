@@ -13,3 +13,4 @@ model_light_gbm_best_30_iter.joblib
 test pour debug.ipynb
 debug_test_unitaire.ipynb
 test pour debug data_drift.ipynb
+App_pour_envoi_sur_pythonanywhere.zip

@@ -223,24 +223,6 @@ def main():
             check_additivity=False
         )[1]
 
-        # # Chemin de l'image de feature importance globale
-        # image_path = os.path.join(FIG_PATH, 'feature_importance_globale.png')
-
-        # # SI l'image existe ALORS on l'affiche
-        # if os.path.isfile(image_path):
-        #     st.image(image_path)
-
-        # # SINON Enregistrer et afficher le plot
-        # else:
-        #     # Affichage feature importance globale
-        #     shap.summary_plot(
-        #         shap_values_all,
-        #         data.drop(columns=['SK_ID_CURR']),
-        #         plot_type='dot'
-        #     )
-        #     plt.savefig(image_path)
-        #     st.pyplot()
-
         # Affichage ou sauvegarde du plot de feature importance globale
         st.write('Feature importance globale :')
         display_or_save_plot(shap_values_all, data, FIG_PATH)

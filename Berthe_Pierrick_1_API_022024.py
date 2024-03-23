@@ -31,7 +31,6 @@ print(f'dirname: {dirname}')
 MODEL_PATH = os.path.join(dirname, "mlflow_model", "model.pkl")
 model = joblib.load(MODEL_PATH)
 
-
 # ====== étape 3 : Wrapper pour prediction avec seuil personalisé ===========
 
 class CustomModelWrapper(mlflow.pyfunc.PythonModel):
@@ -42,13 +41,6 @@ class CustomModelWrapper(mlflow.pyfunc.PythonModel):
     Attributs:
     model (object): Le modèle de machine learning à envelopper.
     threshold (float): Le seuil de prédiction. Par défaut à 0.5.
-
-    Méthodes:
-    predict(context, model_input): Prédit les classes des échantillons en
-    utilisant le seuil personnalisé.
-    predict_proba(model_input, context=None): Prédit les probabilités des
-    classes pour les échantillons.
-    model(context=None): Retourne le modèle de machine learning enveloppé.
     """
     def __init__(self, model, threshold=0.5):
         """
@@ -91,19 +83,6 @@ class CustomModelWrapper(mlflow.pyfunc.PythonModel):
         """
         return self.model.predict_proba(model_input)
 
-    def model(self, context=None):
-        """
-        Retourne le modèle de machine learning enveloppé.
-
-        Paramètres:
-        context (object, optionnel): Le contexte de la prédiction. Non
-        utilisé dans cette méthode.
-
-        Retourne:
-        object: Le modèle de machine learning enveloppé.
-        """
-        return self.model
-
 # ====================== étape 4 : Fonctions ============================
 
 def get_prediction(df, seuil_predict=0.08):
@@ -123,21 +102,6 @@ def get_prediction(df, seuil_predict=0.08):
     proba_class_1 = prediction_proba[1]
 
     return prediction, proba_class_1
-
-# def get_prediction(df):
-#     """
-#     Prédit la classe de l'instance en utilisant le modèle pré-entraîné.
-#     """
-#     # Prédire la classe de l'instance
-#     prediction = model.predict(df)[0]
-
-#     # Prédire la probabilité de la classe 1
-#     prediction_proba = model.predict_proba(df)[0]
-
-#     # Sélectionner la probabilité de la classe 1
-#     proba_class_1 = prediction_proba[1]
-
-#     return prediction, proba_class_1
 
 
 def get_shap_values(df, final_estimator):
@@ -186,11 +150,13 @@ def home():
     """
     Retourne la page d'accueil de l'API.
     """
-    description = f'''<h1>Bienvenue sur l'API de Pierrick</h1>
-                    <p>Cette API est dédiée au projet 7 de ma formation Openclassrooms</p>
-                    <p>Chemins :</p>
-                    <p>abspath: {abspath}</p>
-                    <p>dirname: {dirname}</p>'''
+    description = (
+        f'''<h1>Bienvenue sur l'API de Pierrick BERTHE</h1>
+        <p>Cette API est dédiée au projet 7 de ma formation Openclassrooms</p>
+        <p>Chemins :</p>
+        <p>abspath: {abspath}</p>
+        <p>dirname: {dirname}</p>'''
+    )
     return description
 
 
@@ -212,9 +178,11 @@ def predict():
     # Récupération des données au format JSON
     data = request.get_json()
 
-    # Vérification de la présence de données (erreur 400 si non présentes)
+    # Vérification de la présence de données (erreur 415 si non présentes)
     if data is None:
-        return jsonify({'error': 'Bad Request', 'message': 'No input data provided'}), 415
+        return jsonify(
+            {'error': 'Bad Request', 'message': 'No input data provided'}
+        ), 415
 
     try:
         # Convertir les données en DataFrame Pandas
@@ -264,9 +232,11 @@ def predict():
         # Retour de la prédiction au format JSON
         return jsonify(response)
 
-    # Gestion des erreurs
+    # Gestion des erreurs (erreur 500 si erreur interne)
     except Exception as e:
-        return jsonify({'error': 'Internal Server Error', 'message': str(e)}), 500
+        return jsonify(
+            {'error': 'Internal Server Error', 'message': str(e)}
+        ), 500
 
 # =================== étape 6 : Run de l'API ==========================
 
