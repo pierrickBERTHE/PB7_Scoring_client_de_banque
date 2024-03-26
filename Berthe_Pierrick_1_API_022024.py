@@ -21,7 +21,7 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 
 # Choix du répertoire racine (local ou distant)
-environment = os.getenv('ENVIRONMENT', 'local')
+environment = os.getenv('ENVIRONMENT', 'distant')
 
 if environment == 'local':
     dirname = "C:\\Users\\pierr\\VSC_Projects\\Projet7_OCR_DataScientist"
