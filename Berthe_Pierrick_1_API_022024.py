@@ -20,11 +20,14 @@ import mlflow.pyfunc
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
-# Récupération du chemin absolu et du répertoire du fichier api.py
-abspath = os.path.abspath(__file__)
-dirname = os.path.dirname(abspath)
+# Choix du répertoire racine (local ou distant)
+environment = os.getenv('ENVIRONMENT', 'local')
 
-# Affichage du current directory
+if environment == 'local':
+    dirname = "C:\\Users\\pierr\\VSC_Projects\\Projet7_OCR_DataScientist"
+else:
+    dirname = "/home/pierrickberthe/mysite"
+
 print(f'dirname: {dirname}')
 
 # Chargement du modèle pré-entraîné
@@ -154,7 +157,6 @@ def home():
         f'''<h1>Bienvenue sur l'API de Pierrick BERTHE</h1>
         <p>Cette API est dédiée au projet 7 de ma formation Openclassrooms</p>
         <p>Chemins :</p>
-        <p>abspath: {abspath}</p>
         <p>dirname: {dirname}</p>'''
     )
     return description

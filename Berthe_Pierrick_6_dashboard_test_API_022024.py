@@ -22,25 +22,31 @@ st.set_option('deprecation.showPyplotGlobalUse', False)
 # ====================== étape 2 : Généralités ============================
 
 # Titre de l'application
-st.title('Projet 7\n') 
-st.title('Élaborez le modèle de scoring - Dashboard\n') 
+st.title('Projet 7\n')
+st.title('Élaborez le modèle de scoring - Dashboard\n')
 
-# Chemin du répertoire racine
-ROOT_DIR = "C:\\Users\\pierr\\VSC_Projects\\Projet7_OCR_DataScientist"
+# Choix du répertoire racine (local ou distant)
+environment = os.getenv('ENVIRONMENT', 'local')
 
-# Chemin du fichier de données nettoyées
-DATA_PATH = os.path.join(
-    ROOT_DIR, "data", "cleaned", "application_train_cleaned.csv"
-)
+if environment == 'local':
+    ROOT_DIR = "C:\\Users\\pierr\\VSC_Projects\\Projet7_OCR_DataScientist"
+    MODEL_URL_FLASK = 'http://127.0.0.1:5000/predict'
+    DATA_PATH = os.path.join(
+        ROOT_DIR, "data", "cleaned", "application_train_cleaned.csv"
+    )
+    FIG_PATH = os.path.join(ROOT_DIR, "figure")
+    MODEL_PATH = os.path.join(ROOT_DIR, 'mlflow_model', 'model.pkl')
 
-# Chemin du fichier de données nettoyées
-FIG_PATH = os.path.join(ROOT_DIR, "figure")
+else:
+    ROOT_DIR = "/home/pierrickberthe/mysite"
+    MODEL_URL_FLASK = 'http://pierrickberthe.eu.pythonanywhere.com/predict'
+    DATA_PATH = os.path.join(
+        ROOT_DIR, "..", "data", "cleaned", "application_train_cleaned.csv"
+    )
+    FIG_PATH = os.path.join(ROOT_DIR, "..", "figure")
+    MODEL_PATH = os.path.join(ROOT_DIR, "..", 'mlflow_model', 'model.pkl')
 
-# URL du service web
-MODEL_URL_FLASK = 'http://127.0.0.1:5000/predict'
-
-# Chemin du modèle pré-entraîné et chargement
-MODEL_PATH = os.path.join(ROOT_DIR, 'mlflow_model', 'model.pkl')
+# Chargement du modèle pré-entraîné
 model = joblib.load(MODEL_PATH)
 
 # ==================== étape 3 : chargement data ==========================
@@ -134,7 +140,7 @@ def request_prediction(url, data):
 def display_or_save_plot(shap_values_all, data, FIG_PATH):
     """
     Affiche ou sauvegarde le plot de feature importance globale.
-    
+
     Args:
         shap_values_all (np.array): SHAP values pour toutes les données.
         data (pd.DataFrame): Données.
