@@ -170,7 +170,7 @@ def health():
     """
     return jsonify({
         'status': 'API fonctionnelle',
-        'webhooks': 'en test'
+        'webhooks': 'normalement configurés',
         })
 
 
