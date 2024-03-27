@@ -41,6 +41,18 @@ class TestFlaskApp(unittest.TestCase):
             os.getcwd(), "data", "cleaned", "application_train_cleaned.csv"
         )
 
+        # Choix du répertoire racine (local ou distant)
+        environment = os.getenv('ENVIRONMENT', 'distant')
+
+        if environment == 'local':
+            DATA_PATH = os.path.join(
+                os.getcwd(), "data", "cleaned", "application_train_cleaned.csv"
+            )
+        else:
+            DATA_PATH = os.path.join(
+                "..", "..", "data", "cleaned", "application_train_cleaned.csv"
+            )
+
         # Charge le fichier CSV dans un DataFrame pandas
         df = pd.read_csv(DATA_PATH)
 
