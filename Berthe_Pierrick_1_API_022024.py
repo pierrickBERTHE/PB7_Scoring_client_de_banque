@@ -250,9 +250,13 @@ def git_update():
     """
     Mise à jour du dépôt git.
     """
+    # ESSAI de MAJ dépôt git
     try:
+        # Chemin du dépôt git
+        GIT_PATH = os.path.join(dirname, "Projet7_OCR_DataScientist")
+
         # Récupération du dépôt git
-        repo = git.Repo(dirname)
+        repo = git.Repo(GIT_PATH)
 
         # Mise à jour du dépôt
         origin = repo.remotes.origin
