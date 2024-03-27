@@ -36,10 +36,6 @@ class TestFlaskApp(unittest.TestCase):
         Cette méthode est appelée une fois pour toute la classe de test.
         Elle charge les données du premier client.
         """
-        # Chemin du fichier de données nettoyées
-        DATA_PATH = os.path.join(
-            os.getcwd(), "data", "cleaned", "application_train_cleaned.csv"
-        )
 
         # Choix du répertoire racine (local ou distant)
         environment = os.getenv('ENVIRONMENT', 'distant')
@@ -50,7 +46,7 @@ class TestFlaskApp(unittest.TestCase):
             )
         else:
             DATA_PATH = os.path.join(
-                "..", "..", "data", "cleaned", "application_train_cleaned.csv"
+                os.getcwd(), "..", "..", "data", "cleaned", "application_train_cleaned.csv"
             )
 
         # Charge le fichier CSV dans un DataFrame pandas
