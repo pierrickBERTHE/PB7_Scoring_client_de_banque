@@ -168,7 +168,10 @@ def health():
     """
     Retourne un message indiquant que le serveur est opérationnel.
     """
-    return jsonify({'status': 'API fonctionnelle'})
+    return jsonify({
+        'status': 'API fonctionnelle',
+        'webhooks': 'en test'
+        })
 
 
 @app.route('/predict', methods=['POST'])
