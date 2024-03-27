@@ -250,22 +250,25 @@ def git_update():
     """
     Mise à jour du dépôt git.
     """
+    try:
+        # Récupération du dépôt git
+        repo = git.Repo(dirname)
 
-    # Récupération du dépôt git
-    repo = git.Repo(dirname)
+        # Mise à jour du dépôt
+        origin = repo.remotes.origin
 
-    # Mise à jour du dépôt
-    origin = repo.remotes.origin
+        # Création de la branche main si elle n'existe pas
+        repo.create_head('main', origin.refs.main).set_tracking_branch(
+            origin.refs.main
+            ).checkout()
+        
+        # Pull des modifications
+        origin.pull()
 
-    # Création de la branche main si elle n'existe pas
-    repo.create_head('main', origin.refs.main).set_tracking_branch(
-        origin.refs.main
-        ).checkout()
-    
-    # Pull des modifications
-    origin.pull()
+        return '', 200
 
-    return '', 200
+    except git.GitCommandError as e:
+        return str(e), 500
 
 
 # =================== étape 6 : Run de l'API ==========================
