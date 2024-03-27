@@ -13,6 +13,7 @@ import joblib
 import os
 import shap
 import mlflow.pyfunc
+import git
 
 # ====================== étape 2 : Généralités ============================
 
@@ -239,6 +240,30 @@ def predict():
         return jsonify(
             {'error': 'Internal Server Error', 'message': str(e)}
         ), 500
+
+
+@app.route('/git_update', methods=['POST'])
+def git_update():
+    """
+    Mise à jour du dépôt git.
+    """
+
+    # Récupération du dépôt git
+    repo = git.Repo(dirname)
+
+    # Mise à jour du dépôt
+    origin = repo.remotes.origin
+
+    # Création de la branche main si elle n'existe pas
+    repo.create_head('main', origin.refs.main).set_tracking_branch(
+        origin.refs.main
+        ).checkout()
+    
+    # Pull des modifications
+    origin.pull()
+
+    return '', 200
+
 
 # =================== étape 6 : Run de l'API ==========================
 

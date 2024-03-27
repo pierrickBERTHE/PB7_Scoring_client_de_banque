@@ -107,20 +107,6 @@ def main():
     print("data_new shape: ", data_new.shape)
     print("")
 
-
-############################## DEV ########################################
-
-    # Réduction de la taille des données
-    data_ref = data_ref.sample(frac=0.01, random_state=1)
-    data_new = data_new.sample(frac=0.01, random_state=1)
-
-    print("Echantillon de 1% des données obtenu :")
-    print("data_ref shape: ", data_ref.shape)
-    print("data_new shape: ", data_new.shape)
-    print("")
-
-############################## DEV ########################################
-
     # Isolement des noms des colonnes numériques et catégorielles
     categorical_col = get_categorical_columns(data_ref)
     numerical_columns = get_numerical_columns(data_ref, categorical_col)
