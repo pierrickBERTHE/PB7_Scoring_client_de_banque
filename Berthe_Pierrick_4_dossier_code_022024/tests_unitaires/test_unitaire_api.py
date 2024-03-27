@@ -15,10 +15,10 @@ import json
 import pandas as pd
 
 # Ajouter le chemin relatif du fichier api.py au sys.path pour import
-sys.path.insert(
-    0,
+path_racine = (
     os.path.abspath(os.path.join(os.path.dirname(__file__), '..', ".."))
 )
+sys.path.insert(0, path_racine)
 
 from Berthe_Pierrick_1_API_022024 import app
 print("Berthe_Pierrick_1_API_022024 chargé\n")
@@ -37,18 +37,9 @@ class TestFlaskApp(unittest.TestCase):
         Elle charge les données du premier client.
         """
 
-        # Choix du répertoire racine (local ou distant)
-        environment = os.getenv('ENVIRONMENT', 'distant')
-
-        if environment == 'local':
-            DATA_PATH = os.path.join(
-                os.getcwd(), "data", "cleaned", "application_train_cleaned.csv"
-            )
-        else:
-            DATA_PATH = os.path.join(
-            os.path.dirname(
-                os.path.abspath(__file__)),
-                "..", "..", "data", "cleaned", "application_train_cleaned.csv"
+        # Chemin du fichier CSV contenant les données nettoyées
+        DATA_PATH = os.path.join(
+            path_racine, "data", "cleaned", "application_train_cleaned.csv"
         )
 
         # Charge le fichier CSV dans un DataFrame pandas
