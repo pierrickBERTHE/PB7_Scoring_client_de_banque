@@ -46,8 +46,10 @@ class TestFlaskApp(unittest.TestCase):
             )
         else:
             DATA_PATH = os.path.join(
-                os.getcwd(), "..", "..", "data", "cleaned", "application_train_cleaned.csv"
-            )
+            os.path.dirname(
+                os.path.abspath(__file__)),
+                "..", "..", "data", "cleaned", "application_train_cleaned.csv"
+        )
 
         # Charge le fichier CSV dans un DataFrame pandas
         df = pd.read_csv(DATA_PATH)
