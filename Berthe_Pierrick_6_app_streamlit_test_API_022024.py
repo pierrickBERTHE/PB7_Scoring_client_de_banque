@@ -36,7 +36,7 @@ if environment == 'local':
     MODEL_URL_FLASK = 'http://127.0.0.1:5000/predict'
 
 else:
-    ROOT_DIR = "/home/pierrickberthe/mysite"
+    ROOT_DIR = ("Projet7_OCR_DataScientist")
     MODEL_URL_FLASK = 'http://pierrickberthe.eu.pythonanywhere.com/predict'
 
 # Chemin du fichier de données nettoyées
@@ -44,11 +44,11 @@ DATA_PATH = os.path.join(
     ROOT_DIR, "data", "cleaned", "application_train_cleaned.csv"
 )
 
-# Changement de répertoire de travail
-os.chdir(ROOT_DIR)
-print("Changement de wd vers : ", ROOT_DIR)
-print("getcwd:", os.getcwd(), "\n")
-print("listdir:", os.listdir(), "\n")
+# # Changement de répertoire de travail
+# os.chdir(ROOT_DIR)
+# print("Changement de wd vers : ", ROOT_DIR)
+# print("getcwd:", os.getcwd(), "\n")
+# print("listdir:", os.listdir(), "\n")
 
 # chemin du répertoire pour sauvegarder le plot
 FIG_PATH = os.path.join(ROOT_DIR, "figure")
