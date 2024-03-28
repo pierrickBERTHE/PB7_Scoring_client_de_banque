@@ -3,6 +3,9 @@ Description: Ce fichier contient l'API Flask pour le projet 7 de ma formation # 
 
 Author: Pierrick Berthe
 Date: 2024-03-21
+
+URL de l'API : http://pierrickberthe.eu.pythonanywhere.com/
+
 """
 
 # ============== étape 1 : Importation des librairies ====================
