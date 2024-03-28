@@ -41,10 +41,10 @@ else:
     ROOT_DIR = "/home/pierrickberthe/mysite"
     MODEL_URL_FLASK = 'http://pierrickberthe.eu.pythonanywhere.com/predict'
     DATA_PATH = os.path.join(
-        ROOT_DIR, "..", "data", "cleaned", "application_train_cleaned.csv"
+        ROOT_DIR, "data", "cleaned", "application_train_cleaned.csv"
     )
-    FIG_PATH = os.path.join(ROOT_DIR, "..", "figure")
-    MODEL_PATH = os.path.join(ROOT_DIR, "..", 'mlflow_model', 'model.pkl')
+    FIG_PATH = os.path.join(ROOT_DIR, "figure")
+    MODEL_PATH = os.path.join(ROOT_DIR, 'mlflow_model', 'model.pkl')
 
 # Chargement du modèle pré-entraîné
 model = joblib.load(MODEL_PATH)
