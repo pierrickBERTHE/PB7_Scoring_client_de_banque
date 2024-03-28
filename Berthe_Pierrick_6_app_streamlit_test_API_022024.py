@@ -27,6 +27,7 @@ st.title('Élaborez le modèle de scoring - Dashboard\n')
 
 # Choix du répertoire racine (local ou distant)
 environment = os.getenv('ENVIRONMENT', 'distant')
+print(f'Environnement : {environment}')
 
 if environment == 'local':
     ROOT_DIR = "C:\\Users\\pierr\\VSC_Projects\\Projet7_OCR_DataScientist"
