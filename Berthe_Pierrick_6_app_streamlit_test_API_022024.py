@@ -36,9 +36,9 @@ if environment == 'local':
     MODEL_URL_FLASK = 'http://127.0.0.1:5000/predict'
 
 else:
-    ROOT_DIR = (
-        "Projet7_OCR_DataScientist/Berthe_Pierrick_4_dossier_code_022024"
-    )
+    ROOT_DIR = os.path.join(
+        os.getcwd(), "Berthe_Pierrick_4_dossier_code_022024"
+        )
     MODEL_URL_FLASK = 'http://pierrickberthe.eu.pythonanywhere.com/predict'
 
 # Chemin du fichier de données nettoyées
