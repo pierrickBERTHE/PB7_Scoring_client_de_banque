@@ -28,8 +28,8 @@ st.title('Élaborez le modèle de scoring - Dashboard\n')
 # Choix du répertoire racine (local ou distant)
 environment = os.getenv('ENVIRONMENT', 'distant')
 print(f'Environnement : {environment}\n')
-print("getcwd:", os.getcwd())
-print("listdir:", os.listdir())
+print("getcwd:", os.getcwd(), "\n")
+print("listdir:", os.listdir(), "\n")
 
 if environment == 'local':
     ROOT_DIR = "C:\\Users\\pierr\\VSC_Projects\\Projet7_OCR_DataScientist"
@@ -43,6 +43,12 @@ else:
 DATA_PATH = os.path.join(
     ROOT_DIR, "data", "cleaned", "application_train_cleaned.csv"
 )
+
+# Changement de répertoire de travail
+os.chdir(ROOT_DIR)
+print("Changement de wd vers : ", ROOT_DIR)
+print("getcwd:", os.getcwd(), "\n")
+print("listdir:", os.listdir(), "\n")
 
 # chemin du répertoire pour sauvegarder le plot
 FIG_PATH = os.path.join(ROOT_DIR, "figure")
