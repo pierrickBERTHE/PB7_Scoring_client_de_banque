@@ -15,6 +15,7 @@ import joblib
 import shap
 import matplotlib.pyplot as plt
 import streamlit as st
+import gdown
 
 # Ne pas afficher les warnings
 st.set_option('deprecation.showPyplotGlobalUse', False)
@@ -72,6 +73,15 @@ def load_data(file_path, _model):
     Returns:
         pd.DataFrame: Données transformées.
     """
+    # L'ID du fichier application_train_cleaned.csv sur Google Drive
+    file_id = '1VK5hGautry4anHfxhhv7DC4PeFslMX4U'
+
+    # Construire l'URL pour le fichier CSV
+    url = f'https://drive.google.com/uc?id={file_id}'
+
+    # Télécharger le fichier CSV
+    gdown.download(url, file_path, quiet=False)
+
     # Lire les noms de colonnes
     cols = pd.read_csv(file_path, nrows=0).columns
 
