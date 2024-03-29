@@ -29,7 +29,7 @@ st.title('Élaborez le modèle de scoring - Dashboard\n')
 environment = os.getenv('ENVIRONMENT', 'distant')
 print(f'Environnement : {environment}\n')
 print("getcwd:", os.getcwd(), "\n")
-print("listdir:", os.listdir(), "\n")
+# print("listdir:", os.listdir(), "\n")
 
 if environment == 'local':
     ROOT_DIR = "C:\\Users\\pierr\\VSC_Projects\\Projet7_OCR_DataScientist"
@@ -41,16 +41,10 @@ else:
         )
     MODEL_URL_FLASK = 'http://pierrickberthe.eu.pythonanywhere.com/predict'
 
-# Chemin du fichier de données nettoyées
-DATA_PATH = os.path.join(
-    ROOT_DIR, "data", "cleaned", "application_train_cleaned.csv"
-)
-
-# # Changement de répertoire de travail
-# os.chdir(ROOT_DIR)
-# print("Changement de wd vers : ", ROOT_DIR)
-# print("getcwd:", os.getcwd(), "\n")
-# print("listdir:", os.listdir(), "\n")
+# # Chemin du fichier de données nettoyées
+# DATA_PATH = os.path.join(
+#     ROOT_DIR, "data", "cleaned", "application_train_cleaned.csv"
+# )
 
 # chemin du répertoire pour sauvegarder le plot
 FIG_PATH = os.path.join(ROOT_DIR, "figure")
@@ -58,54 +52,73 @@ FIG_PATH = os.path.join(ROOT_DIR, "figure")
 # Chemin du modèle pré-entraîné
 MODEL_PATH = os.path.join(ROOT_DIR, 'mlflow_model', 'model.pkl')
 
-
 # Chargement du modèle pré-entraîné
 model = joblib.load(MODEL_PATH)
 
 # ==================== étape 3 : chargement data ==========================
 
-@st.cache_data
-def load_data(file_path, _model):
-    """
-    Charge les données à partir d'un fichier CSV et les transforme en
-    utilisant un modèle donné.
+# DEV debut
 
-    Args:
-        file_path (str): Chemin vers le fichier CSV.
-        _model (imblearn.pipeline.Pipeline): Modèle pour transformer les
-        données.
+# @st.cache_data
+# def load_data(file_path, _model):
+#     """
+#     Charge les données à partir d'un fichier CSV et les transforme en
+#     utilisant un modèle donné.
 
-    Returns:
-        pd.DataFrame: Données transformées.
-    """
-    # Lire les noms de colonnes
-    cols = pd.read_csv(file_path, nrows=0).columns
+#     Args:
+#         file_path (str): Chemin vers le fichier CSV.
+#         _model (imblearn.pipeline.Pipeline): Modèle pour transformer les
+#         données.
 
-    # Supprimer la première colonne
-    cols = cols[1:]
+#     Returns:
+#         pd.DataFrame: Données transformées.
+#     """
+#     # Lire les noms de colonnes
+#     cols = pd.read_csv(file_path, nrows=0).columns
 
-    # Lire le fichier CSV sans la première colonne
-    data_df = pd.read_csv(file_path, usecols=cols)
+#     # Supprimer la première colonne
+#     cols = cols[1:]
 
-    # Isolement de la colonne SK_ID_CURR
-    sk_id_curr = data_df['SK_ID_CURR']
+#     # Lire le fichier CSV sans la première colonne
+#     data_df = pd.read_csv(file_path, usecols=cols)
 
-    # Suppression des colonnes TARGET et SK_ID_CURR
-    data_df_dropped = data_df.drop(columns=["TARGET", "SK_ID_CURR"])
+#     # Isolement de la colonne SK_ID_CURR
+#     sk_id_curr = data_df['SK_ID_CURR']
 
-    # Imputation des valeurs manquantes (preprocessing du modele)
-    data_array = _model.named_steps['preprocess'].transform(data_df_dropped)
+#     # Suppression des colonnes TARGET et SK_ID_CURR
+#     data_df_dropped = data_df.drop(columns=["TARGET", "SK_ID_CURR"])
 
-    # Création d'un DataFrame à partir du tableau numpy
-    data_df_new = pd.DataFrame(data_array, columns=data_df_dropped.columns)
+#     # Imputation des valeurs manquantes (preprocessing du modele)
+#     data_array = _model.named_steps['preprocess'].transform(data_df_dropped)
 
-    # Re-insertion de la colonne SK_ID_CURR
-    data_df_new['SK_ID_CURR'] = sk_id_curr
+#     # Création d'un DataFrame à partir du tableau numpy
+#     data_df_new = pd.DataFrame(data_array, columns=data_df_dropped.columns)
 
-    return data_df_new
+#     # Re-insertion de la colonne SK_ID_CURR
+#     data_df_new['SK_ID_CURR'] = sk_id_curr
 
-# Chargement des données
-data = load_data(DATA_PATH, model)
+#     return data_df_new
+
+# # Chargement des données
+# data = load_data(DATA_PATH, model)
+
+DATA_URL_FLASK = 'http://pierrickberthe.eu.pythonanywhere.com/load_data'
+
+# Faire une requête GET à l'API Flask
+response = requests.get(DATA_URL_FLASK)
+
+# Vérifier que la requête a réussi
+if response.status_code == 200:
+
+    # Convertir le texte de la réponse en un DataFrame pandas
+    data = pd.DataFrame(response.json())
+
+    # Utiliser les données dans votre application Streamlit
+    st.write("Données chargées avec succès !")
+else:
+    st.write(f"Échec du chargement des données : {response.status_code}")
+
+# DEV fin
 
 # ====================== étape 4 : Fonctions ============================
 

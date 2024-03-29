@@ -10,6 +10,7 @@ URL de l'API : http://pierrickberthe.eu.pythonanywhere.com/
 
 # ============== étape 1 : Importation des librairies ====================
 
+from json import load
 from flask import Flask, request, jsonify
 import pandas as pd
 import joblib
@@ -175,6 +176,66 @@ def health():
         'status': 'API fonctionnelle',
         'webhooks': 'normalement configurés + MAJ auto avec post-merge hook',
         })
+
+
+# DEV debut
+
+DATA_PATH = os.path.join(
+    dirname, "data", "cleaned", "application_train_cleaned.csv"
+)
+
+def load_data(file_path, _model):
+    """
+    Charge les données à partir d'un fichier CSV et les transforme en
+    utilisant un modèle donné.
+
+    Args:
+        file_path (str): Chemin vers le fichier CSV.
+        _model (imblearn.pipeline.Pipeline): Modèle pour transformer les
+        données.
+
+    Returns:
+        pd.DataFrame: Données transformées.
+    """
+    # Lire les noms de colonnes
+    cols = pd.read_csv(file_path, nrows=0).columns
+
+    # Supprimer la première colonne
+    cols = cols[1:]
+
+    # Lire le fichier CSV sans la première colonne
+    data_df = pd.read_csv(file_path, usecols=cols)
+
+    # Isolement de la colonne SK_ID_CURR
+    sk_id_curr = data_df['SK_ID_CURR']
+
+    # Suppression des colonnes TARGET et SK_ID_CURR
+    data_df_dropped = data_df.drop(columns=["TARGET", "SK_ID_CURR"])
+
+    # Imputation des valeurs manquantes (preprocessing du modele)
+    data_array = _model.named_steps['preprocess'].transform(data_df_dropped)
+
+    # Création d'un DataFrame à partir du tableau numpy
+    data_df_new = pd.DataFrame(data_array, columns=data_df_dropped.columns)
+
+    # Re-insertion de la colonne SK_ID_CURR
+    data_df_new['SK_ID_CURR'] = sk_id_curr
+
+    return data_df_new
+
+
+@app.route('/load_data', methods=['GET'])
+def get_data():
+    # Charger les données
+    data = load_data(DATA_PATH, model)
+
+    # Convertir le DataFrame en liste de dictionnaires
+    data_dict = data.to_dict('records')
+
+    # Renvoyer les données en JSON
+    return jsonify(data_dict)
+
+# DEV fin
 
 
 @app.route('/predict', methods=['POST'])
