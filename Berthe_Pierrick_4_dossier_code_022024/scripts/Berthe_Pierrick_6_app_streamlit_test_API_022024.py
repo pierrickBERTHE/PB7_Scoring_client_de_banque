@@ -15,6 +15,7 @@ import joblib
 import shap
 import matplotlib.pyplot as plt
 import streamlit as st
+import zipfile
 
 # Ne pas afficher les warnings
 st.set_option('deprecation.showPyplotGlobalUse', False)
@@ -26,25 +27,31 @@ st.title('Projet 7\n')
 st.title('Élaborez le modèle de scoring - Dashboard\n')
 
 # Choix du répertoire racine (local ou distant)
-environment = os.getenv('ENVIRONMENT', 'distant')
+environment = os.getenv('ENVIRONMENT', 'local')
+print(f'Environnement : {environment}\n')
 
+# Répertoire racine (dossier parent)
+ROOT_DIR = os.path.dirname(os.getcwd())
+print(f'ROOT_DIR : {ROOT_DIR}\n')
+
+# URL de l'API Flask pour la prédiction (local ou distant)
 if environment == 'local':
-    ROOT_DIR = "C:\\Users\\pierr\\VSC_Projects\\Projet7_OCR_DataScientist"
-    MODEL_URL_FLASK = 'http://127.0.0.1:5000/predict'
-    DATA_PATH = os.path.join(
-        ROOT_DIR, "data", "cleaned", "application_train_cleaned.csv"
-    )
-    FIG_PATH = os.path.join(ROOT_DIR, "figure")
-    MODEL_PATH = os.path.join(ROOT_DIR, 'mlflow_model', 'model.pkl')
-
+    URL_FLASK_PREDICT = 'http://127.0.0.1:5000/predict'
 else:
-    ROOT_DIR = "/home/pierrickberthe/mysite"
-    MODEL_URL_FLASK = 'http://pierrickberthe.eu.pythonanywhere.com/predict'
-    DATA_PATH = os.path.join(
-        ROOT_DIR, "..", "data", "cleaned", "application_train_cleaned.csv"
-    )
-    FIG_PATH = os.path.join(ROOT_DIR, "..", "figure")
-    MODEL_PATH = os.path.join(ROOT_DIR, "..", 'mlflow_model', 'model.pkl')
+    URL_FLASK_PREDICT = 'http://pierrickberthe.eu.pythonanywhere.com/predict'
+
+# Chemin du fichier de données nettoyées
+DATA_PATH = os.path.join(
+    ROOT_DIR, "data", "cleaned", "application_train_cleaned.zip"
+)
+print(f'DATA_PATH : {DATA_PATH}\n')
+
+# chemin du répertoire pour sauvegarder le plot
+FIG_PATH = os.path.join(ROOT_DIR, "figure")
+
+# Chemin du modèle pré-entraîné
+MODEL_PATH = os.path.join(ROOT_DIR, 'mlflow_model', 'model.pkl')
+
 
 # Chargement du modèle pré-entraîné
 model = joblib.load(MODEL_PATH)
@@ -52,7 +59,7 @@ model = joblib.load(MODEL_PATH)
 # ==================== étape 3 : chargement data ==========================
 
 @st.cache_data
-def load_data(file_path, _model):
+def load_data(file_path, file_name_csv, _model):
     """
     Charge les données à partir d'un fichier CSV et les transforme en
     utilisant un modèle donné.
@@ -65,8 +72,11 @@ def load_data(file_path, _model):
     Returns:
         pd.DataFrame: Données transformées.
     """
-    # Lire les noms de colonnes
-    cols = pd.read_csv(file_path, nrows=0).columns
+
+    # Ouvrir le fichier zip en mode lecture ('r')
+    with zipfile.ZipFile(file_path, 'r') as z:
+        with z.open(file_name_csv) as f:
+            cols = pd.read_csv(f, nrows=0).columns
 
     # Supprimer la première colonne
     cols = cols[1:]
@@ -92,7 +102,8 @@ def load_data(file_path, _model):
     return data_df_new
 
 # Chargement des données
-data = load_data(DATA_PATH, model)
+data = load_data(DATA_PATH, 'application_train_cleaned.csv', model)
+print('chargement des données terminé\n')
 
 # ====================== étape 4 : Fonctions ============================
 
@@ -178,7 +189,7 @@ def main():
 
     # Bouton pour calculer la prédiction => envoi de la requête POST
     if st.button('Calculer la prédiction'):
-        response = request_prediction(MODEL_URL_FLASK, client_data)
+        response = request_prediction(URL_FLASK_PREDICT, client_data)
 
         # Affichage de la prédiction en français
         if response["prediction"]["prediction"] == 0:

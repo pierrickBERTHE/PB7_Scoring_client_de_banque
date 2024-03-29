@@ -23,20 +23,25 @@ import git
 # Création de l'application Flask
 app = Flask(__name__)
 app.config["DEBUG"] = True
+print('API Flask démarrée\n')
+
+# affichage du répertoire courant
+current_directory = os.getcwd()
+print ("current_directory: ", current_directory, "\n")
 
 # Choix du répertoire racine (local ou distant)
-environment = os.getenv('ENVIRONMENT', 'distant')
+environment = os.getenv('ENVIRONMENT', 'local')
+print(f'Environnement : {environment}\n')
 
 if environment == 'local':
-    dirname = "C:\\Users\\pierr\\VSC_Projects\\Projet7_OCR_DataScientist"
+    dirname = "C:\\Users\\pierr\\VSC_Projects\\Projet7_OCR_DataScientist\\Berthe_Pierrick_4_dossier_code_022024"
 else:
     dirname = "/home/pierrickberthe/mysite"
-
-print(f'dirname: {dirname}')
 
 # Chargement du modèle pré-entraîné
 MODEL_PATH = os.path.join(dirname, "mlflow_model", "model.pkl")
 model = joblib.load(MODEL_PATH)
+print('Modèle chargé\n')
 
 # ====== étape 3 : Wrapper pour prediction avec seuil personalisé ===========
 
@@ -161,6 +166,7 @@ def home():
         f'''<h1>Bienvenue sur l'API de Pierrick BERTHE</h1>
         <p>Cette API est dédiée au projet 7 de ma formation Openclassrooms</p>
         <p>Chemins :</p>
+        <p>current_directory: {current_directory}</p>
         <p>dirname: {dirname}</p>'''
     )
     return description
