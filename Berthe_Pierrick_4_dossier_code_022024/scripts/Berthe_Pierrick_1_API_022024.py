@@ -30,16 +30,25 @@ current_directory = os.getcwd()
 print ("current_directory: ", current_directory, "\n")
 
 # Choix du répertoire racine (local ou distant)
-environment = os.getenv('ENVIRONMENT', 'local')
+environment = os.getenv('ENVIRONMENT', 'distant')
 print(f'Environnement : {environment}\n')
 
 if environment == 'local':
     dirname = "C:\\Users\\pierr\\VSC_Projects\\Projet7_OCR_DataScientist\\Berthe_Pierrick_4_dossier_code_022024"
 else:
     dirname = "/home/pierrickberthe/mysite"
+    # changer current directory
+    os.chdir(dirname)
+    print(f'current_directory: {os.getcwd()}\n')
 
 # Chargement du modèle pré-entraîné
-MODEL_PATH = os.path.join(dirname, "mlflow_model", "model.pkl")
+MODEL_PATH = os.path.join(
+    dirname,
+    "Projet7_OCR_DataScientist",
+    "Berthe_Pierrick_4_dossier_code_022024",
+    "mlflow_model",
+    "model.pkl"
+)
 model = joblib.load(MODEL_PATH)
 print('Modèle chargé\n')
 
