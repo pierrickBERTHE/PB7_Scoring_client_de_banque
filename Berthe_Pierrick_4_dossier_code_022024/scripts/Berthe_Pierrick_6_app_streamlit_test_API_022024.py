@@ -27,7 +27,7 @@ st.title('Projet 7\n')
 st.title('Élaborez le modèle de scoring - Dashboard\n')
 
 # Choix du répertoire racine (local ou distant)
-environment = os.getenv('ENVIRONMENT', 'local')
+environment = os.getenv('ENVIRONMENT', 'distant')
 print(f'Environnement : {environment}\n')
 
 # Répertoire racine (dossier parent)
