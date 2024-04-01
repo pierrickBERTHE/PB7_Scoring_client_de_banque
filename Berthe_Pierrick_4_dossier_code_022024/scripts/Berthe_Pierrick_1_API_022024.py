@@ -25,30 +25,20 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 print('API Flask démarrée\n')
 
-# affichage du répertoire courant
-current_directory = os.getcwd()
-print ("current_directory: ", current_directory, "\n")
+# Répertoire racine
+ROOT_DIR = os.getcwd()
+print("ROOT_DIR:",ROOT_DIR, "\n")
 
-# Choix du répertoire racine (local ou distant)
-environment = os.getenv('ENVIRONMENT', 'distant')
-print(f'Environnement : {environment}\n')
-
-if environment == 'local':
-    dirname = "C:\\Users\\pierr\\VSC_Projects\\Projet7_OCR_DataScientist\\Berthe_Pierrick_4_dossier_code_022024"
-else:
-    dirname = "/home/pierrickberthe/mysite"
-    # changer current directory
-    os.chdir(dirname)
-    print(f'current_directory: {os.getcwd()}\n')
-
-# Chargement du modèle pré-entraîné
+# Chemin du modèle pré-entraîné
 MODEL_PATH = os.path.join(
-    dirname,
-    "Projet7_OCR_DataScientist",
-    "Berthe_Pierrick_4_dossier_code_022024",
+    ROOT_DIR,
+    "..",
     "mlflow_model",
     "model.pkl"
 )
+print("MODEL_PATH:",MODEL_PATH, "\n")
+
+# Chargement du modèle pré-entraîné
 model = joblib.load(MODEL_PATH)
 print('Modèle chargé\n')
 
@@ -175,8 +165,8 @@ def home():
         f'''<h1>Bienvenue sur l'API de Pierrick BERTHE</h1>
         <p>Cette API est dédiée au projet 7 de ma formation Openclassrooms</p>
         <p>Chemins :</p>
-        <p>current_directory: {current_directory}</p>
-        <p>dirname: {dirname}</p>'''
+        <p>ROOT_DIR: {ROOT_DIR}</p>
+        <p>MODEL_PATH: {MODEL_PATH}</p>'''
     )
     return description
 
@@ -270,11 +260,9 @@ def git_update():
     """
     # ESSAI de MAJ dépôt git
     try:
-        # Chemin du dépôt git
-        GIT_PATH = os.path.join(dirname, "Projet7_OCR_DataScientist")
 
         # Récupération du dépôt git
-        repo = git.Repo(GIT_PATH)
+        repo = git.Repo(ROOT_DIR)
 
         # Mise à jour du dépôt
         origin = repo.remotes.origin
