@@ -261,8 +261,14 @@ def git_update():
     # ESSAI de MAJ dépôt git
     try:
 
+        # Chemin du modèle pré-entraîné
+        GIT_PATH = os.path.join(
+            "..",
+            ".."
+        )
+
         # Récupération du dépôt git
-        repo = git.Repo(ROOT_DIR)
+        repo = git.Repo(GIT_PATH)
 
         # Mise à jour du dépôt
         origin = repo.remotes.origin
