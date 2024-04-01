@@ -16,6 +16,7 @@ import shap
 import matplotlib.pyplot as plt
 import streamlit as st
 import zipfile
+from memory_profiler import profile
 
 # ================= étape 2 : Chemins environnement ========================
 
@@ -181,8 +182,11 @@ def display_or_save_plot(shap_values_all, data, FIG_PATH):
         plt.savefig(image_path)
         st.pyplot()
 
+
+
 # ============= étape 6 : Fonction principale du dashboard ==================
 
+@profile
 def main():
     """
     Fonction principale de l'application Streamlit.
