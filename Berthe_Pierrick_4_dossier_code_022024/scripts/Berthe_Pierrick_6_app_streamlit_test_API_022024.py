@@ -20,38 +20,36 @@ import zipfile
 # Ne pas afficher les warnings
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
-# ====================== étape 2 : Généralités ============================
+# ================= étape 2 : Chemins environnement ========================
 
 # Titre de l'application
 st.title('Projet 7\n')
 st.title('Élaborez le modèle de scoring - Dashboard\n')
 
-# Choix du répertoire racine (local ou distant)
-environment = os.getenv('ENVIRONMENT', 'distant')
-print(f'Environnement : {environment}\n')
+# Répertoire racine
+ROOT_DIR = os.getcwd()
+print("ROOT_DIR:",ROOT_DIR, "\n")
 
-# Répertoire racine (dossier parent)
-ROOT_DIR = os.path.dirname(os.getcwd())
-print(f'ROOT_DIR : {ROOT_DIR}\n')
-
-# URL de l'API Flask pour la prédiction (local ou distant)
-if environment == 'local':
-    URL_FLASK_PREDICT = 'http://127.0.0.1:5000/predict'
+# URL de l'API Flask pour prédiction (mysite == serveur distant pythonanywhere)
+if 'mysite'in ROOT_DIR:
+    URL_API_PREDICT = 'http://pierrickberthe.eu.pythonanywhere.com/predict'
 else:
-    URL_FLASK_PREDICT = 'http://pierrickberthe.eu.pythonanywhere.com/predict'
+    URL_API_PREDICT = 'http://127.0.0.1:5000/predict'
+print("URL_API_PREDICT:",URL_API_PREDICT, "\n")
 
 # Chemin du fichier de données nettoyées
 DATA_PATH = os.path.join(
-    ROOT_DIR, "data", "cleaned", "application_train_cleaned.zip"
+    ROOT_DIR, "..", "data/cleaned", "application_train_cleaned.zip"
 )
-print(f'DATA_PATH : {DATA_PATH}\n')
+print("DATA_PATH:",DATA_PATH, "\n")
 
 # chemin du répertoire pour sauvegarder le plot
-FIG_PATH = os.path.join(ROOT_DIR, "figure")
+FIG_DIR = os.path.join(ROOT_DIR, "..", "figure")
+print("FIG_DIR:",FIG_DIR, "\n")
 
 # Chemin du modèle pré-entraîné
-MODEL_PATH = os.path.join(ROOT_DIR, 'mlflow_model', 'model.pkl')
-
+MODEL_PATH = os.path.join(ROOT_DIR, "..", "mlflow_model", "model.pkl")
+print("MODEL_PATH:",MODEL_PATH, "\n")
 
 # Chargement du modèle pré-entraîné
 model = joblib.load(MODEL_PATH)
@@ -189,7 +187,7 @@ def main():
 
     # Bouton pour calculer la prédiction => envoi de la requête POST
     if st.button('Calculer la prédiction'):
-        response = request_prediction(URL_FLASK_PREDICT, client_data)
+        response = request_prediction(URL_API_PREDICT, client_data)
 
         # Affichage de la prédiction en français
         if response["prediction"]["prediction"] == 0:
@@ -214,7 +212,9 @@ def main():
         st.dataframe(response['prediction'])
 
         # Transformation des données pour SHAP en array
-        shap_values_subset_array = np.array(response['feature_importance_locale']['shap_values_subset'])
+        shap_values_subset_array = np.array(
+            response['feature_importance_locale']['shap_values_subset']
+        )
 
         # Transformation des données client en DataFrame
         client_data_subset_df = pd.DataFrame(
@@ -242,7 +242,7 @@ def main():
 
         # Affichage ou sauvegarde du plot de feature importance globale
         st.write('Feature importance globale :')
-        display_or_save_plot(shap_values_all, data, FIG_PATH)
+        display_or_save_plot(shap_values_all, data, FIG_DIR)
 
 # =================== étape 6 : Run du dashboard ==========================
 
