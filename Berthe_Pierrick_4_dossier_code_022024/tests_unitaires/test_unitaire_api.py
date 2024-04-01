@@ -13,15 +13,22 @@ import unittest
 import requests
 import json
 import pandas as pd
+import zipfile
 
-# Ajouter le chemin relatif du fichier api.py au sys.path pour import
-path_racine = (
-    os.path.abspath(os.path.join(os.path.dirname(__file__), '..', ".."))
-)
-sys.path.insert(0, path_racine)
+# Répertoire racine
+ROOT_DIR = os.getcwd()
+print("ROOT_DIR:",ROOT_DIR, "\n")
 
+# Chemin de l'API
+API_FOLDER = os.path.join(ROOT_DIR, "..", "scripts")
+print("API_FOLDER:",API_FOLDER, "\n")
+
+# SI le chemin de l'API n'est pas dans le PATH, l'ajouter
+if API_FOLDER not in sys.path:
+    sys.path = [API_FOLDER] + sys.path
+
+# import flask app but need to call it "application" for WSGI to work
 from Berthe_Pierrick_1_API_022024 import app
-print("Berthe_Pierrick_1_API_022024 chargé\n")
 
 # ========== étape 2 :Class de test pour l'application Flask =============
 
@@ -37,21 +44,16 @@ class TestFlaskApp(unittest.TestCase):
         Elle charge les données du premier client.
         """
 
-        # Choix du répertoire racine (local ou distant)
-        environment = os.getenv('ENVIRONMENT', 'distant')
+        # Chemin du fichier de données nettoyées
+        DATA_PATH = os.path.join(
+            ROOT_DIR, "..", "data/cleaned", "application_train_cleaned.zip"
+        )
+        print("DATA_PATH:",DATA_PATH, "\n")
 
-        if environment == 'local':
-            DATA_PATH = os.path.join(
-                os.getcwd(), "data", "cleaned", "application_train_cleaned.csv"
-            )
-        else:
-            DATA_PATH = os.path.join(
-                os.path.join(path_racine, '..'),
-                "data", "cleaned", "application_train_cleaned.csv"
-            )
-
-        # Charge le fichier CSV dans un DataFrame pandas
-        df = pd.read_csv(DATA_PATH)
+        # Ouvrir le fichier zip en mode lecture ('r')
+        with zipfile.ZipFile(DATA_PATH, 'r') as z:
+            with z.open('application_train_cleaned.csv') as f:
+                df = pd.read_csv(f)
 
         # Selectionne le premier client_id pour la prédiction
         client_id = int(df.iloc[0]['SK_ID_CURR'])
@@ -66,6 +68,7 @@ class TestFlaskApp(unittest.TestCase):
             'TARGET']
         )
 
+
     def setUp(self):
         """
         Cette méthode est appelée avant chaque test. Elle crée un client de
@@ -74,6 +77,7 @@ class TestFlaskApp(unittest.TestCase):
         self.app = app.test_client()
         self.app.testing = True
 
+# ======== étape 3 : Définition de 4 tests pour l'application Flask ========
 
     def test_a_route_acceuil(self):
         """

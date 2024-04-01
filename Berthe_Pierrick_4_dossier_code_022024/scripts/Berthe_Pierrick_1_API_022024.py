@@ -30,12 +30,7 @@ ROOT_DIR = os.getcwd()
 print("ROOT_DIR:",ROOT_DIR, "\n")
 
 # Chemin du modèle pré-entraîné
-MODEL_PATH = os.path.join(
-    ROOT_DIR,
-    "..",
-    "mlflow_model",
-    "model.pkl"
-)
+MODEL_PATH = os.path.join(ROOT_DIR, "..", "mlflow_model", "model.pkl")
 print("MODEL_PATH:",MODEL_PATH, "\n")
 
 # Chargement du modèle pré-entraîné
