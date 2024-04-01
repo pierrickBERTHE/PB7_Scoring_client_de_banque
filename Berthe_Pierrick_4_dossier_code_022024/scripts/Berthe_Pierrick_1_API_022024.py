@@ -262,10 +262,7 @@ def git_update():
     try:
 
         # Chemin du modèle pré-entraîné
-        GIT_PATH = os.path.join(
-            "..",
-            ".."
-        )
+        GIT_PATH = os.path.join("..", "..")
 
         # Récupération du dépôt git
         repo = git.Repo(GIT_PATH)
