@@ -22,6 +22,9 @@ st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # ================= étape 2 : Chemins environnement ========================
 
+# Détecteur si besoin de changer le chemin pour le déploiement Streamlit
+CHEMIN_POUR_DEPLOIEMENT_STREAMLIT = True
+
 # Titre de l'application
 st.title('Projet 7\n')
 st.title('Élaborez le modèle de scoring - Dashboard\n')
@@ -37,24 +40,32 @@ else:
     URL_API_PREDICT = 'http://127.0.0.1:5000/predict'
 print("URL_API_PREDICT:",URL_API_PREDICT, "\n")
 
-# Chemin du fichier de données nettoyées
+# SI besoin de changer le chemin pour le déploiement Streamlit
+if CHEMIN_POUR_DEPLOIEMENT_STREAMLIT:
+    ROOT_DIR = os.path.join(ROOT_DIR, "Berthe_Pierrick_4_dossier_code_022024")
+else:
+    pass
+
+# Chemin des données
 DATA_PATH = os.path.join(
-    ROOT_DIR, "..", "data/cleaned", "application_train_cleaned.zip"
+    ROOT_DIR, "data/cleaned", "application_train_cleaned.zip"
 )
 print("DATA_PATH:",DATA_PATH, "\n")
 
-# chemin du répertoire pour sauvegarder le plot
-FIG_DIR = os.path.join(ROOT_DIR, "..", "figure")
+# Chemin du répertoire pour sauvegarder le plot
+FIG_DIR = os.path.join(ROOT_DIR, "figure")
 print("FIG_DIR:",FIG_DIR, "\n")
 
-# Chemin du modèle pré-entraîné
-MODEL_PATH = os.path.join(ROOT_DIR, "..", "mlflow_model", "model.pkl")
+# Chemin du modèle
+MODEL_PATH = os.path.join(ROOT_DIR, "mlflow_model", "model.pkl")
 print("MODEL_PATH:",MODEL_PATH, "\n")
+
+# ==================== étape 3 : chargement modèle ==========================
 
 # Chargement du modèle pré-entraîné
 model = joblib.load(MODEL_PATH)
 
-# ==================== étape 3 : chargement data ==========================
+# ==================== étape 4 : chargement data ==========================
 
 @st.cache_data
 def load_data(file_path, file_name_csv, _model):
@@ -103,7 +114,7 @@ def load_data(file_path, file_name_csv, _model):
 data = load_data(DATA_PATH, 'application_train_cleaned.csv', model)
 print('chargement des données terminé\n')
 
-# ====================== étape 4 : Fonctions ============================
+# ====================== étape 5 : Fonctions ============================
 
 def get_client_data(client_id):
     """
@@ -173,7 +184,7 @@ def display_or_save_plot(shap_values_all, data, FIG_PATH):
         plt.savefig(image_path)
         st.pyplot()
 
-# ============= étape 5 : Fonction principale du dashboard ==================
+# ============= étape 6 : Fonction principale du dashboard ==================
 
 def main():
     """
@@ -244,7 +255,7 @@ def main():
         st.write('Feature importance globale :')
         display_or_save_plot(shap_values_all, data, FIG_DIR)
 
-# =================== étape 6 : Run du dashboard ==========================
+# =================== étape 7 : Run du dashboard ==========================
 
 if __name__ == '__main__':
     main()
