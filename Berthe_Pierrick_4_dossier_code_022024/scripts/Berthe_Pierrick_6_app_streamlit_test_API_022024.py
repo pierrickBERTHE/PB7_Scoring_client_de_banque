@@ -17,9 +17,6 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import zipfile
 
-# Ne pas afficher les warnings
-st.set_option('deprecation.showPyplotGlobalUse', False)
-
 # ================= étape 2 : Chemins environnement ========================
 
 # Détecteur si besoin de changer le chemin pour le déploiement Streamlit
