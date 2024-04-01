@@ -178,7 +178,7 @@ def health():
     """
     return jsonify({
         'status': 'API fonctionnelle',
-        'webhooks': 'normalement configurés + MAJ auto avec post-merge hook',
+        'webhooks': 'MAJ auto avec post-merge hook le 01/04/2024',
         })
 
 
