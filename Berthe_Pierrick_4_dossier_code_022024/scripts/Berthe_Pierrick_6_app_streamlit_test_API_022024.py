@@ -49,7 +49,7 @@ else:
 
 # Chemin des données
 DATA_PATH = os.path.join(
-    ROOT_DIR, "data/cleaned", "application_train_cleaned_frac_10%.zip"
+    ROOT_DIR, "data/cleaned", "application_train_cleaned_frac_1%.zip"
 )
 print("DATA_PATH:",DATA_PATH, "\n")
 

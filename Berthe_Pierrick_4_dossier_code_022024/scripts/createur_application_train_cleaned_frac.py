@@ -59,7 +59,7 @@ def main():
     Fonction principale qui orchestre le chargement, l'échantillonnage et
     l'enregistrement des données.
     """
-    frac = 0.1
+    frac = 0.01
     df = load_data(DATA_PATH, "application_train_cleaned.csv")
     sample_df = sample_data(df, frac)
     save_data(
