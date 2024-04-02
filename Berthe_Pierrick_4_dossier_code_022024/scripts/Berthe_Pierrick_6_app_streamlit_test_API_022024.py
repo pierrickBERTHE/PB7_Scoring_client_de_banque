@@ -63,8 +63,12 @@ print("MODEL_PATH:",MODEL_PATH, "\n")
 
 # ==================== étape 3 : chargement modèle ==========================
 
+@st.cache_data
+def load_model(model_path):
+    return joblib.load(model_path)
+
 # Chargement du modèle pré-entraîné
-model = joblib.load(MODEL_PATH)
+model = load_model(MODEL_PATH)
 
 # ==================== étape 4 : chargement data ==========================
 
