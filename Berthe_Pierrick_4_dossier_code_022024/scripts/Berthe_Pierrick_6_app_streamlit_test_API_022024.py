@@ -116,7 +116,7 @@ def load_data(file_path, file_name_csv, _model):
     return data_df_new
 
 # Chargement des données
-data = load_data(DATA_PATH, 'application_train_cleaned_frac_10%.csv', model)
+data = load_data(DATA_PATH, 'application_train_cleaned_frac_1%.csv', model)
 print('chargement des données terminé\n')
 
 # ====================== étape 5 : Fonctions ============================
