@@ -45,7 +45,7 @@ else:
 
 # Chemin des données
 DATA_PATH = os.path.join(
-    ROOT_DIR, "data/cleaned", "application_train_cleaned.zip"
+    ROOT_DIR, "data/cleaned", "application_train_cleaned_frac_10%.zip"
 )
 print("DATA_PATH:",DATA_PATH, "\n")
 
@@ -108,7 +108,7 @@ def load_data(file_path, file_name_csv, _model):
     return data_df_new
 
 # Chargement des données
-data = load_data(DATA_PATH, 'application_train_cleaned.csv', model)
+data = load_data(DATA_PATH, 'application_train_cleaned_frac_10%.csv', model)
 print('chargement des données terminé\n')
 
 # ====================== étape 5 : Fonctions ============================

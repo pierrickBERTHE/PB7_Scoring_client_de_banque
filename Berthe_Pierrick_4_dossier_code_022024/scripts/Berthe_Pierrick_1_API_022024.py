@@ -33,11 +33,13 @@ print("ROOT_DIR:",ROOT_DIR, "\n")
 MODEL_PATH = os.path.join(ROOT_DIR, "..", "mlflow_model", "model.pkl")
 print("MODEL_PATH:",MODEL_PATH, "\n")
 
+# ================== étape 3 : Chargement du modèle ========================
+
 # Chargement du modèle pré-entraîné
 model = joblib.load(MODEL_PATH)
 print('Modèle chargé\n')
 
-# ====== étape 3 : Wrapper pour prediction avec seuil personalisé ===========
+# ====== étape 4 : Wrapper pour prediction avec seuil personalisé ===========
 
 class CustomModelWrapper(mlflow.pyfunc.PythonModel):
     """
@@ -89,7 +91,7 @@ class CustomModelWrapper(mlflow.pyfunc.PythonModel):
         """
         return self.model.predict_proba(model_input)
 
-# ====================== étape 4 : Fonctions ============================
+# ====================== étape 5 : Fonctions ============================
 
 def get_prediction(df, seuil_predict=0.08):
     """
@@ -149,7 +151,7 @@ def get_top_features(df, shap_values_class_1_2d, nbr_feature=5):
 
     return top_features, shap_values_df
 
-# ======================== étape 5 : Routes ==========================
+# ======================== étape 6 : Routes ==========================
 
 @app.route('/', methods=['GET'])
 def home():
@@ -279,7 +281,7 @@ def git_update():
         return str(e), 500
 
 
-# =================== étape 6 : Run de l'API ==========================
+# =================== étape 7 : Run de l'API ==========================
 
 # Exécution de l'application Flask si le script est exécuté directement
 if __name__ == '__main__':
