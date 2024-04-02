@@ -23,6 +23,9 @@ from memory_profiler import profile
 # Détecteur si besoin de changer le chemin pour le déploiement Streamlit
 CHEMIN_POUR_DEPLOIEMENT_STREAMLIT = True
 
+# Environnement de l'API (local ou distant)
+env_API = "distant"
+
 # Titre de l'application
 st.title('Projet 7\n')
 st.title('Élaborez le modèle de scoring - Dashboard\n')
@@ -31,11 +34,11 @@ st.title('Élaborez le modèle de scoring - Dashboard\n')
 ROOT_DIR = os.getcwd()
 print("ROOT_DIR:",ROOT_DIR, "\n")
 
-# URL de l'API Flask pour prédiction (mysite == serveur distant pythonanywhere)
-if 'mysite'in ROOT_DIR:
-    URL_API_PREDICT = 'http://pierrickberthe.eu.pythonanywhere.com/predict'
-else:
+# URL de l'API Flask pour prédiction (local ou distant)
+if env_API == 'local':
     URL_API_PREDICT = 'http://127.0.0.1:5000/predict'
+else:
+    URL_API_PREDICT = 'http://pierrickberthe.eu.pythonanywhere.com/predict'
 print("URL_API_PREDICT:",URL_API_PREDICT, "\n")
 
 # SI besoin de changer le chemin pour le déploiement Streamlit
