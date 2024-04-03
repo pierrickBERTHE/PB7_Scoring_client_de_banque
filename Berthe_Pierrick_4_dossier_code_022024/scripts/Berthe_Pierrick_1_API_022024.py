@@ -25,12 +25,24 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 print('API Flask démarrée\n')
 
+# Détecteur si besoin de changer le chemin pour le déploiement Streamlit
+CHEMIN_POUR_DEPLOIEMENT_STREAMLIT = True
+
 # Répertoire racine
 ROOT_DIR = os.getcwd()
 print("ROOT_DIR:",ROOT_DIR, "\n")
 
+# SI besoin de changer le chemin pour le déploiement Streamlit
+if CHEMIN_POUR_DEPLOIEMENT_STREAMLIT:
+    ROOT_DIR = os.path.join(ROOT_DIR, "Berthe_Pierrick_4_dossier_code_022024")
+else:
+    pass
+
 # Chemin du modèle pré-entraîné
-MODEL_PATH = os.path.join(ROOT_DIR, "..", "mlflow_model", "model.pkl")
+if CHEMIN_POUR_DEPLOIEMENT_STREAMLIT:
+    MODEL_PATH = os.path.join(ROOT_DIR, "mlflow_model", "model.pkl")
+else:
+    MODEL_PATH = os.path.join(ROOT_DIR, "..", "mlflow_model", "model.pkl")
 print("MODEL_PATH:",MODEL_PATH, "\n")
 
 # ================== étape 3 : Chargement du modèle ========================
@@ -259,7 +271,10 @@ def git_update():
     try:
 
         # Chemin du modèle pré-entraîné
-        GIT_PATH = os.path.join("..", "..")
+        if CHEMIN_POUR_DEPLOIEMENT_STREAMLIT:
+            GIT_PATH = os.path.join(ROOT_DIR, "..")
+        else:
+            GIT_PATH = os.path.join("..", "..")
 
         # Récupération du dépôt git
         repo = git.Repo(GIT_PATH)

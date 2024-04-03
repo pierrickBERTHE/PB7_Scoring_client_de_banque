@@ -153,7 +153,7 @@ def request_prediction(url, data):
     """
     # ESSAI de la requête POST (timeout de 5 secondes)
     try:
-        response = requests.post(url, json=data.to_dict(), timeout=5)
+        response = requests.post(url, json=data.to_dict(), timeout=30)
         response.raise_for_status()
 
     # Gestion de l'erreur HTTP
@@ -259,13 +259,22 @@ def main():
         )
         st.pyplot()
 
-        # # Calcul des SHAP values pour toutes les données
+        # # # Calcul des SHAP values pour toutes les données
+        # explainer = shap.TreeExplainer(model[-1])
+        # data_dropped = data.drop(columns=['SK_ID_CURR'])
+        # shap_values_all = explainer.shap_values(
+        #     data_dropped,
+        #     check_additivity=False
+        # )[1]
+
+                # # Calcul des SHAP values pour toutes les données
         explainer = shap.TreeExplainer(model[-1])
         data_dropped = data.drop(columns=['SK_ID_CURR'])
         shap_values_all = explainer.shap_values(
             data_dropped,
             check_additivity=False
-        )[1]
+        )
+
 
         # Affichage ou sauvegarde du plot de feature importance globale
         st.write('Feature importance globale :')
