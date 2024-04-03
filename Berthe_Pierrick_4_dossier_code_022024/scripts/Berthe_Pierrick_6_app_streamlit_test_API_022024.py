@@ -24,7 +24,7 @@ from memory_profiler import profile
 CHEMIN_POUR_DEPLOIEMENT_STREAMLIT = True
 
 # Environnement de l'API (local ou distant)
-env_API = "local"
+env_API = "distant"
 
 # Titre de l'application
 st.title('Projet 7\n')
