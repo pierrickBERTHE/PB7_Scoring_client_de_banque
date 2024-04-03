@@ -24,7 +24,7 @@ from memory_profiler import profile
 CHEMIN_POUR_DEPLOIEMENT_STREAMLIT = True
 
 # Environnement de l'API (local ou distant)
-env_API = "distant"
+env_API = "local"
 
 # Titre de l'application
 st.title('Projet 7\n')
@@ -153,7 +153,7 @@ def request_prediction(url, data):
     """
     # ESSAI de la requête POST (timeout de 5 secondes)
     try:
-        response = requests.post(url, json=data.to_dict(), timeout=30)
+        response = requests.post(url, json=data.to_dict())
         response.raise_for_status()
         return response.json()
 
@@ -214,46 +214,47 @@ def main():
             st.write('Erreur de prédiction\n')
 
         # Affichage de la prédiction en français
-        elif response["prediction"]["prediction"] == 0:
-            st.markdown(
-                '<div style="background-color: #98FB98; padding: 10px;'
-                'border-radius: 5px; color: #000000;"'
-                '>Le prêt est accordé.</div>',
-                unsafe_allow_html=True
-            )
         else:
-            st.markdown(
-                '<div style="background-color: #FF6347; padding: 10px;'
-                'border-radius: 5px; color: #000000;"'
-                '>Le prêt n\'est pas accordé.</div>',
-                unsafe_allow_html=True
+            if response["prediction"]["prediction"] == 0:
+                st.markdown(
+                    '<div style="background-color: #98FB98; padding: 10px;'
+                    'border-radius: 5px; color: #000000;"'
+                    '>Le prêt est accordé.</div>',
+                    unsafe_allow_html=True
+                )
+            else:
+                st.markdown(
+                    '<div style="background-color: #FF6347; padding: 10px;'
+                    'border-radius: 5px; color: #000000;"'
+                    '>Le prêt n\'est pas accordé.</div>',
+                    unsafe_allow_html=True
+                )
+
+            # ajouter un espace
+            st.write('')
+
+            # Affichage de la prédiction
+            st.dataframe(response['prediction'])
+
+            # Transformation des données pour SHAP en array
+            shap_values_subset_array = np.array(
+                response['feature_importance_locale']['shap_values_subset']
             )
 
-        # ajouter un espace
-        st.write('')
+            # Transformation des données client en DataFrame
+            client_data_subset_df = pd.DataFrame(
+                [response['feature_importance_locale']['client_data_subset']],
+                columns=response['feature_importance_locale']['top_features']
+            )
 
-        # Affichage de la prédiction
-        st.dataframe(response['prediction'])
-
-        # Transformation des données pour SHAP en array
-        shap_values_subset_array = np.array(
-            response['feature_importance_locale']['shap_values_subset']
-        )
-
-        # Transformation des données client en DataFrame
-        client_data_subset_df = pd.DataFrame(
-            [response['feature_importance_locale']['client_data_subset']],
-            columns=response['feature_importance_locale']['top_features']
-        )
-
-        # Affichage feature importance locale
-        st.write('Feature importance locale :')
-        shap.force_plot(
-            response['prediction']["explainer"],
-            shap_values_subset_array,
-            client_data_subset_df,
-            matplotlib=True
-        )
+            # Affichage feature importance locale
+            st.write('Feature importance locale :')
+            shap.force_plot(
+                response['prediction']["explainer"],
+                shap_values_subset_array,
+                client_data_subset_df,
+                matplotlib=True
+            )
         st.pyplot()
 
         # # # Calcul des SHAP values pour toutes les données
