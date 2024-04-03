@@ -155,18 +155,12 @@ def request_prediction(url, data):
     try:
         response = requests.post(url, json=data.to_dict(), timeout=30)
         response.raise_for_status()
-
-    # Gestion de l'erreur HTTP
-    except requests.exceptions.HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')
+        return response.json()
 
     # Gestion des autres erreurs
     except Exception as err:
         print(f'Other error occurred: {err}')
-
-    # SI pas d'erreur => retourner la réponse
-    else:
-        return response.json()
+        return None
 
 
 @st.cache_resource
@@ -216,8 +210,11 @@ def main():
     if st.button('Calculer la prédiction'):
         response = request_prediction(URL_API_PREDICT, client_data)
 
+        if response is None:
+            st.write('Erreur de prédiction\n')
+
         # Affichage de la prédiction en français
-        if response["prediction"]["prediction"] == 0:
+        elif response["prediction"]["prediction"] == 0:
             st.markdown(
                 '<div style="background-color: #98FB98; padding: 10px;'
                 'border-radius: 5px; color: #000000;"'
