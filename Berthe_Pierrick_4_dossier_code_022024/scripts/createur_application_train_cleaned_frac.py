@@ -41,9 +41,13 @@ def load_data(zip_path, csv_file):
 
 def sample_data(df, fraction):
     """
-    Échantillonne une fraction d'un DataFrame.
+    Échantillonne une fraction d'un DataFrame ou une seule ligne si la
+    fraction est égale à 1.
     """
-    return df.sample(frac=fraction)
+    if fraction == 1:
+        return df.sample(n=1)
+    else:
+        return df.sample(frac=fraction)
 
 
 def save_data(df, DATA_DIR, output_file):
@@ -59,15 +63,15 @@ def main():
     Fonction principale qui orchestre le chargement, l'échantillonnage et
     l'enregistrement des données.
     """
-    frac = 0.01
+    frac = 1
     df = load_data(DATA_PATH, "application_train_cleaned.csv")
     sample_df = sample_data(df, frac)
     save_data(
         sample_df,
         DATA_DIR,
-        'application_train_cleaned_frac_{0}%.csv'.format(frac * 100)
+        'application_train_cleaned_1_line.csv' if frac == 1 else 'application_train_cleaned_frac_{0}%.csv'.format(frac * 100)
     )
-    print("Fichier sous-échantillionné exporté")
+    print("Fichier sous-échantillionné exporté dans {0}".format(DATA_DIR))
 
 # ============== étape 4 : Exécution ====================
 

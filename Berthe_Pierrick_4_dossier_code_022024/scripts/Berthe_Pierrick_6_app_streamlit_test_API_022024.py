@@ -49,7 +49,7 @@ else:
 
 # Chemin des données
 DATA_PATH = os.path.join(
-    ROOT_DIR, "data/cleaned", "application_train_cleaned_frac_1%.zip"
+    ROOT_DIR, "data/cleaned", "application_train_cleaned_1_line.zip"
 )
 print("DATA_PATH:",DATA_PATH, "\n")
 
@@ -63,7 +63,7 @@ print("MODEL_PATH:",MODEL_PATH, "\n")
 
 # ==================== étape 3 : chargement modèle ==========================
 
-@st.cache_data
+@st.cache_resource
 def load_model(model_path):
     return joblib.load(model_path)
 
@@ -116,7 +116,7 @@ def load_data(file_path, file_name_csv, _model):
     return data_df_new
 
 # Chargement des données
-data = load_data(DATA_PATH, 'application_train_cleaned_frac_1%.csv', model)
+data = load_data(DATA_PATH, 'application_train_cleaned_1_line.csv', model)
 print('chargement des données terminé\n')
 
 # ====================== étape 5 : Fonctions ============================
@@ -142,6 +142,7 @@ def get_client_data(client_id):
     return client_data.drop(columns=['SK_ID_CURR'])
 
 
+@st.cache_resource
 def request_prediction(url, data):
     """
     Envoie une requête POST de prédiction à un service web.
@@ -149,19 +150,26 @@ def request_prediction(url, data):
     Args:
         url (str): URL du service web.
         data (pd.DataFrame): Données à prédire.
-
-    Returns:
-        dict: Réponse du service web.
     """
-    # Envoi de la requête POST
-    response = requests.post(url, json=data.to_dict(orient='records'))
+    # ESSAI de la requête POST (timeout de 5 secondes)
+    try:
+        response = requests.post(url, json=data.to_dict(), timeout=5)
+        response.raise_for_status()
 
-    # Vérification de la réponse
-    response.raise_for_status()
+    # Gestion de l'erreur HTTP
+    except requests.exceptions.HTTPError as http_err:
+        print(f'HTTP error occurred: {http_err}')
 
-    return response.json()
+    # Gestion des autres erreurs
+    except Exception as err:
+        print(f'Other error occurred: {err}')
+
+    # SI pas d'erreur => retourner la réponse
+    else:
+        return response.json()
 
 
+@st.cache_resource
 def display_or_save_plot(shap_values_all, data, FIG_PATH):
     """
     Affiche ou sauvegarde le plot de feature importance globale.
