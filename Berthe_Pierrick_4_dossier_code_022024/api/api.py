@@ -262,40 +262,6 @@ def predict():
         ), 500
 
 
-@app.route('/git_update', methods=['POST'])
-def git_update():
-    """
-    Mise à jour du dépôt git.
-    """
-    # ESSAI de MAJ dépôt git
-    try:
-
-        # Chemin du modèle pré-entraîné
-        if CHEMIN_POUR_DEPLOIEMENT_STREAMLIT:
-            GIT_PATH = os.path.join(ROOT_DIR, "..")
-        else:
-            GIT_PATH = os.path.join("..", "..")
-
-        # Récupération du dépôt git
-        repo = git.Repo(GIT_PATH)
-
-        # Mise à jour du dépôt
-        origin = repo.remotes.origin
-
-        # Création de la branche main si elle n'existe pas
-        repo.create_head('main', origin.refs.main).set_tracking_branch(
-            origin.refs.main
-            ).checkout()
-        
-        # Pull des modifications
-        origin.pull()
-
-        return '', 200
-
-    except git.GitCommandError as e:
-        return str(e), 500
-
-
 # =================== étape 7 : Run de l'API ==========================
 
 # Exécution de l'application Flask si le script est exécuté directement
