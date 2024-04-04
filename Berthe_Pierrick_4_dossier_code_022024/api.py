@@ -25,25 +25,12 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 print('API Flask démarrée\n')
 
-# Détecteur si besoin de changer le chemin pour le déploiement Streamlit
-CHEMIN_POUR_DEPLOIEMENT_STREAMLIT = True
-
-# Répertoire racine
-ROOT_DIR = os.getcwd()
-print("ROOT_DIR:",ROOT_DIR, "\n")
-
-# SI besoin de changer le chemin pour le déploiement Streamlit
-if CHEMIN_POUR_DEPLOIEMENT_STREAMLIT:
-    ROOT_DIR = os.path.join(ROOT_DIR, "Berthe_Pierrick_4_dossier_code_022024")
-else:
-    pass
+# Affichage du répertoire courant
+print("getcwd:",os.getcwd(), "\n")
 
 # Chemin du modèle pré-entraîné
-if CHEMIN_POUR_DEPLOIEMENT_STREAMLIT:
-    MODEL_PATH = os.path.join(ROOT_DIR, "mlflow_model", "model.pkl")
-else:
-    MODEL_PATH = os.path.join(ROOT_DIR, "..", "mlflow_model", "model.pkl")
-print("MODEL_PATH:",MODEL_PATH, "\n")
+MODEL_PATH = os.path.join("mlflow_model", "model.pkl")
+print("MODEL_PATH:", MODEL_PATH, "\n")
 
 # ================== étape 3 : Chargement du modèle ========================
 
@@ -174,7 +161,7 @@ def home():
         f'''<h1>Bienvenue sur l'API de Pierrick BERTHE</h1>
         <p>Cette API est dédiée au projet 7 de ma formation Openclassrooms</p>
         <p>Chemins :</p>
-        <p>ROOT_DIR: {ROOT_DIR}</p>
+        <p>getcwd: {os.getcwd()}</p>
         <p>MODEL_PATH: {MODEL_PATH}</p>'''
     )
     return description
@@ -185,10 +172,7 @@ def health():
     """
     Retourne un message indiquant que le serveur est opérationnel.
     """
-    return jsonify({
-        'status': 'API fonctionnelle',
-        'webhooks': 'MAJ auto avec post-merge hook le 01/04/2024',
-        })
+    return jsonify({'status': 'API fonctionnelle'})
 
 
 @app.route('/predict', methods=['POST'])
