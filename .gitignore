@@ -1,17 +1,7 @@
+/.devcontainer/
 /.vscode/
 /__pycache__/
 /data/
-/env/
 /env-3.11.5/
-/env-streamlit-3.12.2/
-/figure/
-/mlflow_model/
 /mlruns/
 /NB_Aide/
-/results/
-model_light_gbm_best_n_iter_10.joblib
-model_light_gbm_best_30_iter.joblib
-test pour debug.ipynb
-debug_test_unitaire.ipynb
-test pour debug data_drift.ipynb
-App_pour_envoi_sur_pythonanywhere.zip
