@@ -1,7 +1,7 @@
-/.devcontainer/
-/.vscode/
-/__pycache__/
-/data/
-/env-3.11.5/
-/mlruns/
-/NB_Aide/
+.devcontainer/
+.vscode/
+__pycache__/
+data/
+env-3.11.5/
+mlruns/
+NB_Aide/

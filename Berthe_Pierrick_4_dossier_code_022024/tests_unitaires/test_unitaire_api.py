@@ -10,25 +10,16 @@ Date: 2024-03-21
 import os
 import sys
 import unittest
-import requests
 import json
 import pandas as pd
 import zipfile
 
-# Répertoire racine
-ROOT_DIR = os.getcwd()
-print("ROOT_DIR:",ROOT_DIR, "\n")
-
-# Chemin de l'API
-API_FOLDER = os.path.join(ROOT_DIR, "..", "scripts")
-print("API_FOLDER:",API_FOLDER, "\n")
-
 # SI le chemin de l'API n'est pas dans le PATH, l'ajouter
-if API_FOLDER not in sys.path:
-    sys.path = [API_FOLDER] + sys.path
+if os.getcwd() not in sys.path:
+    sys.path = [os.getcwd()] + sys.path
 
 # import flask app but need to call it "application" for WSGI to work
-from Berthe_Pierrick_1_API_022024 import app
+from api import app
 
 # ========== étape 2 :Class de test pour l'application Flask =============
 
@@ -43,16 +34,16 @@ class TestFlaskApp(unittest.TestCase):
         Cette méthode est appelée une fois pour toute la classe de test.
         Elle charge les données du premier client.
         """
+        # Nom du fichier de données
+        file_name = "application_train_cleaned_frac_10%"
 
-        # Chemin du fichier de données nettoyées
-        DATA_PATH = os.path.join(
-            ROOT_DIR, "..", "data/cleaned", "application_train_cleaned.zip"
-        )
-        print("DATA_PATH:",DATA_PATH, "\n")
+        # Chemin du fichier  contenant les données
+        DATA_PATH_ZIP = os.path.join("data\\cleaned", file_name + ".zip")
+        DATA_FILE_CSV = file_name + ".csv"
 
         # Ouvrir le fichier zip en mode lecture ('r')
-        with zipfile.ZipFile(DATA_PATH, 'r') as z:
-            with z.open('application_train_cleaned.csv') as f:
+        with zipfile.ZipFile(DATA_PATH_ZIP, 'r') as z:
+            with z.open(DATA_FILE_CSV) as f:
                 df = pd.read_csv(f)
 
         # Selectionne le premier client_id pour la prédiction
@@ -90,7 +81,10 @@ class TestFlaskApp(unittest.TestCase):
         self.assertEqual(response.status_code, 200, "pas code_status 200")
 
         # Vérifier que la réponse contient le texte attendu
-        self.assertIn("Bienvenue sur l'API de Pierrick", response.data.decode())
+        self.assertIn(
+            "Bienvenue sur l'API de Pierrick",
+            response.data.decode()
+            )
         print("\n")
 
 
@@ -111,7 +105,7 @@ class TestFlaskApp(unittest.TestCase):
 
     def test_c_prediction_result(self):
         """
-        Teste la prédiction de l'API en utilisant les données du premier client.
+        Teste la prédiction de l'API en utilisant les données du 1er client.
         """
 
         # Envoi de la requête POST

@@ -1,8 +1,9 @@
 """
-Description: Ce fichier contient l'API Flask pour le projet 7 de ma formation # Openclassrooms.
+Description: Ce fichier contient l'API Flask pour le projet 7 de ma formation
+Openclassrooms.
 
 Author: Pierrick Berthe
-Date: 2024-03-21
+Date: 2024-04-04
 
 URL de l'API : http://pierrickberthe.eu.pythonanywhere.com/
 
@@ -10,33 +11,98 @@ URL de l'API : http://pierrickberthe.eu.pythonanywhere.com/
 
 # ============== étape 1 : Importation des librairies ====================
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 import pandas as pd
 import joblib
 import os
 import shap
 import mlflow.pyfunc
-import git
+import zipfile
+from io import BytesIO
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 
-# ====================== étape 2 : Généralités ============================
+# ====================== étape 2 : Lancement API ============================
+
+def create_app():
+    """
+    Crée une application Flask.
+    """
+    app = Flask(__name__)
+    app.config["DEBUG"] = True
+    return app
 
 # Création de l'application Flask
-app = Flask(__name__)
-app.config["DEBUG"] = True
+app = create_app()
 print('API Flask démarrée\n')
-
-# Affichage du répertoire courant
 print("getcwd:",os.getcwd(), "\n")
 
+# ====================== étape 3 : Fichier data ============================
+
+# Nom du fichier de données
+file_name = "application_train_cleaned_frac_10%"
+
+# ====================== étape 3 : chemins ============================
+
+def create_path(directory, filename):
+    path = os.path.join(directory, filename)
+    print(f"{filename} path: {path}\n")
+    return path
+
 # Chemin du modèle pré-entraîné
-MODEL_PATH = os.path.join("mlflow_model", "model.pkl")
-print("MODEL_PATH:", MODEL_PATH, "\n")
+MODEL_PATH = create_path("mlflow_model", "model.pkl")
+
+# Chemin du fichier  contenant les données
+DATA_PATH_ZIP = create_path("data\\cleaned", file_name + ".zip")
+DATA_FILE_CSV = file_name + ".csv"
 
 # ================== étape 3 : Chargement du modèle ========================
 
 # Chargement du modèle pré-entraîné
 model = joblib.load(MODEL_PATH)
 print('Modèle chargé\n')
+
+# ==================== étape 4 : chargement data ==========================
+
+def load_data(file_name_zip, file_name_csv, _model):
+    """
+    Charge les données à partir d'un fichier CSV et les transforme en
+    utilisant un modèle donné.
+    """
+
+    # Ouvrir le fichier zip en mode lecture ('r')
+    with zipfile.ZipFile(file_name_zip, 'r') as z:
+        with z.open(file_name_csv) as f:
+            cols = pd.read_csv(f, nrows=0).columns
+
+    # Supprimer la première colonne
+    cols = cols[1:]
+
+    # Lire le fichier CSV sans la première colonne
+    data_df = pd.read_csv(file_name_zip, usecols=cols)
+
+    # Isolement de la colonne SK_ID_CURR
+    sk_id_curr = data_df['SK_ID_CURR']
+
+    # Suppression des colonnes TARGET et SK_ID_CURR
+    data_df_dropped = data_df.drop(columns=["TARGET", "SK_ID_CURR"])
+
+    # Imputation des valeurs manquantes (preprocessing du modele)
+    data_array = _model.named_steps['preprocess'].transform(data_df_dropped)
+
+    # Création d'un DataFrame à partir du tableau numpy
+    data_df_new = pd.DataFrame(data_array, columns=data_df_dropped.columns)
+
+    # Re-insertion de la colonne SK_ID_CURR
+    data_df_new['SK_ID_CURR'] = sk_id_curr
+
+    return data_df_new
+
+
+# Chargement des données
+data = load_data(DATA_PATH_ZIP, DATA_FILE_CSV, model)
+print('chargement des données terminé\n')
 
 # ====== étape 4 : Wrapper pour prediction avec seuil personalisé ===========
 
@@ -162,7 +228,9 @@ def home():
         <p>Cette API est dédiée au projet 7 de ma formation Openclassrooms</p>
         <p>Chemins :</p>
         <p>getcwd: {os.getcwd()}</p>
-        <p>MODEL_PATH: {MODEL_PATH}</p>'''
+        <p>MODEL_PATH: {MODEL_PATH}</p>
+        <p>DATA_PATH_ZIP: {DATA_PATH_ZIP}</p>
+        <p>DATA_FILE_CSV: {DATA_FILE_CSV}</p>'''
     )
     return description
 
@@ -173,6 +241,37 @@ def health():
     Retourne un message indiquant que le serveur est opérationnel.
     """
     return jsonify({'status': 'API fonctionnelle'})
+
+
+@app.route('/client_selection', methods=['POST'])
+def client_selection():
+    """
+    Retourne les ID des clients pour la sélection
+    """
+    sk_id_curr_all = data['SK_ID_CURR']
+    return sk_id_curr_all.to_json(orient='records')
+
+
+@app.route('/client_extraction', methods=['POST'])
+def client_data_extraction():
+    """
+    Retourne les données du client en fonction de l'ID du client
+    """ 
+    data_json = request.get_json()
+    if 'client_id' not in data_json:
+        return jsonify({'error': 'No client_id provided'}), 400
+
+    client_id = data_json["client_id"]
+    client_data = data[data['SK_ID_CURR'] == client_id]
+
+    if client_data.empty:
+        return jsonify({'error': 'No data found for this client_id'}), 404
+
+    nan_client = int(client_data.isna().sum().sum())
+    return jsonify({
+        'client_data': client_data.to_json(orient='records'),
+        'nan_client': nan_client
+    })
 
 
 @app.route('/predict', methods=['POST'])
@@ -246,8 +345,56 @@ def predict():
         ), 500
 
 
+@app.route('/feature_importance_globale', methods=['POST'])
+def feature_importance_globale():
+    """
+    Retourne l'image de feature importance globale.
+    """
+    # Vérification de la présence de données (erreur 400 si non présentes)
+    if data is None:
+        return jsonify(
+            {'error': 'Bad Request', 'message': 'No input data provided'}
+        ), 400
+
+    # Vérification de la présence de modèle (erreur 400 si non présentes)
+    if model is None:
+        return jsonify(
+            {'error': 'Bad Request', 'message': 'No model provided'}
+        ), 400
+
+    # Calculer les valeurs SHAP pour toutes les données
+    explainer = shap.TreeExplainer(model[-1])
+    data_dropped = data.drop(columns=['SK_ID_CURR'])
+    shap_values_all = explainer.shap_values(
+        data_dropped,
+        check_additivity=False
+    )
+
+    # Affichage feature importance globale
+    shap.summary_plot(
+        shap_values_all[1],
+        data.drop(columns=['SK_ID_CURR']),
+        plot_type='dot',
+        show=False
+    )
+
+    # Récupérer la fig actuelle et sauvegarder en tant qu'image PNG
+    fig = plt.gcf()
+    buf = BytesIO()
+    fig.savefig(buf, format='png')
+
+    # Fermer la figure et réinitialiser le buffer
+    plt.close(fig)
+    buf.seek(0)
+
+    return send_file(buf, mimetype='image/png')
+
 # =================== étape 7 : Run de l'API ==========================
 
 # Exécution de l'application Flask si le script est exécuté directement
 if __name__ == '__main__':
-    app.run()
+    try:
+        app.run()
+    except SystemExit as e:
+        print(f"SystemExit exception: {e}")
+        print("Le programme n'a pas pu démarrer le serveur Flask.")
