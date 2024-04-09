@@ -38,7 +38,7 @@ class TestFlaskApp(unittest.TestCase):
         file_name = "application_train_cleaned_frac_10%"
 
         # Chemin du fichier  contenant les données
-        DATA_PATH_ZIP = os.path.join("data\\cleaned", file_name + ".zip")
+        DATA_PATH_ZIP = os.path.join("data/cleaned", file_name + ".zip")
         DATA_FILE_CSV = file_name + ".csv"
 
         # Ouvrir le fichier zip en mode lecture ('r')
