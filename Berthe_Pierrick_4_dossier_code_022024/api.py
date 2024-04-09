@@ -322,10 +322,12 @@ def predict():
         )
 
         # Sélectionner les top_features (arrondis)
+        print("Selection des top_features et des shap_values correspondants")
         client_data_subset = df[top_features].round(2)
         shap_values_subset = shap_values_df[top_features].values.round(2)[0]
 
         # Préparer la réponse
+        print("Préparation de la réponse")
         response = {
             'prediction': {
                 'explainer' : explainer.expected_value[1],
