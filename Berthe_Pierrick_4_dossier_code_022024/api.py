@@ -11,6 +11,7 @@ URL de l'API : http://pierrickberthe.eu.pythonanywhere.com/
 
 # ============== étape 1 : Importation des librairies ====================
 
+import logging
 from flask import Flask, request, jsonify, send_file
 import pandas as pd
 import joblib
@@ -292,21 +293,25 @@ def predict():
 
     try:
         # Convertir les données en DataFrame Pandas
+        logging.info("Conversion des données en DataFrame Pandas")
         df = pd.DataFrame(data)
 
         # Prédire la classe de l'instance
+        logging.info("prediction en cours")
         prediction, proba_class_1 = get_prediction(df)
 
         # Extraire le dernier estimateur du pipeline
         final_estimator = model[-1]
 
         # Calculer les valeurs SHAP pour l'instance donnée
+        logging.info("Calcul des valeurs SHAP")
         explainer, shap_values_class_1 = get_shap_values(df, final_estimator)
 
         # Convertir le tableau 1D en tableau 2D pour créer un DataFrame
         shap_values_class_1_2d = shap_values_class_1.reshape(1, -1)
 
         # Extraire les caractéristiques les plus importantes
+        logging.info("Extraction des caractéristiques les plus importantes")
         top_features, shap_values_df = get_top_features(
             df,
             shap_values_class_1_2d
@@ -340,6 +345,7 @@ def predict():
 
     # Gestion des erreurs (erreur 500 si erreur interne)
     except Exception as e:
+        logging.error(f"Erreur lors de la prédiction: {e}")
         return jsonify(
             {'error': 'Internal Server Error', 'message': str(e)}
         ), 500

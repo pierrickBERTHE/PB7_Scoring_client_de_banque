@@ -99,6 +99,8 @@ class TestFlaskApp(unittest.TestCase):
         )
 
         # Vérifier que la réponse a un code de statut 200 (OK)
+        if response.status_code != 200:
+            print("Error: ", response.data.decode('utf-8'))
         self.assertEqual(response.status_code, 200, "pas code_status 200")
         print("\n")
 
@@ -122,6 +124,8 @@ class TestFlaskApp(unittest.TestCase):
             prediction = json.loads(response.data)["prediction"]["prediction"]
 
             # Vérification que la prédiction a été effectuée correctement
+            if response.status_code != 200:
+                print("Error: ", response.data.decode('utf-8'))
             assert prediction is not None, "La prédiction a échoué."
             print("\n")
 
