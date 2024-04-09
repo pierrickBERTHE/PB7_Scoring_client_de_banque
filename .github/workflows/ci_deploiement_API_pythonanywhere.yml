@@ -14,7 +14,7 @@ jobs:
     defaults:
       run:
         working-directory: 
-            Projet7_OCR_DataScientist/Berthe_Pierrick_4_dossier_code_02204
+            ../Berthe_Pierrick_4_dossier_code_02204
 
     steps:
     - uses: actions/checkout@v4
@@ -23,6 +23,11 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.11.5'
+
+    - name: print current directory
+      run: |
+        echo "Current directory is $(pwd)"
+        echo "Contents of current directory $(ls -l)"
 
     - name: creation_virtual_env
       run: |
