@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./Berthe_Pierrick_4_dossier_code_02204
+        working-directory: ../Berthe_Pierrick_4_dossier_code_02204
 
     steps:
     - uses: actions/checkout@v4
@@ -25,8 +25,8 @@ jobs:
 
     - name: creation_virtual_env
       run: |
-        python -m venv env
-        source env/bin/activate
+      python -m venv env
+      source env/bin/activate
 
     - name: installation_requirements
       run: |
