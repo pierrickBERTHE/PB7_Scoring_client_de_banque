@@ -52,6 +52,9 @@ jobs:
         cd Berthe_Pierrick_4_dossier_code_022024
         echo "Working Directory: $(pwd)"
         echo "Contents of Working Directory: $(ls -l)"
+        cd data/cleaned
+        echo "Working Directory: $(pwd)"
+        echo "Contents of Working Directory: $(ls -l)"
 
     - name: tests_unitaires_API
       run: |
