@@ -46,10 +46,15 @@ jobs:
         echo "Python Version: $(python --version)"
         echo "Working Directory: $(pwd)"
         echo "Contents of Working Directory: $(ls -l)"
-        echo "Contents of site-packages: $(ls -l env/lib/python*/site-packages)"
 
     - name: change_directory to Berthe_Pierrick_4_dossier_code_022024
       run: cd Berthe_Pierrick_4_dossier_code_022024
+
+    - name: Print debugging information after cd
+      run: |
+        echo "Python Version: $(python --version)"
+        echo "Working Directory: $(pwd)"
+        echo "Contents of Working Directory: $(ls -l)"
 
     - name: tests_unitaires_API
       run: |
