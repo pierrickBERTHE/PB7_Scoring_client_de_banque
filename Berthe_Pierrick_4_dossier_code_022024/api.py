@@ -330,7 +330,8 @@ def predict():
         print("Préparation de la réponse")
         response = {
             'prediction': {
-                'explainer' : explainer.expected_value[1],
+                # 'explainer' : explainer.expected_value[1],
+                'explainer' : explainer.expected_value,
                 'prediction': prediction.tolist(),
                 'probabilité': round((proba_class_1 * 100), 2).tolist()
             },
