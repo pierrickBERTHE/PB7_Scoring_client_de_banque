@@ -9,20 +9,20 @@ on:
 
 # 2 jobs dans le workflow : build & deploy
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        defaults:
-            run:
-                working-directory: Berthe_Pierrick_4_dossier_code_02204
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Berthe_Pierrick_4_dossier_code_02204
 
-        steps:
-        - uses: actions/checkout@v4
+    steps:
+    - uses: actions/checkout@v4
 
-        - name: installation_python_version_3.11.5
-        uses: actions/setup-python@v5
-        with:
-            python-version: '3.11.5'
-
+    - name: installation_python_version_3.11.5
+    uses: actions/setup-python@v5
+    with:
+      python-version: '3.11.5'
+# stop ici
         - name: creation_virtual_env
         run: |
             python -m venv venv
