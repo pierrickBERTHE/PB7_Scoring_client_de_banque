@@ -189,9 +189,9 @@ def get_shap_values(df, final_estimator):
     shap_values = explainer.shap_values(df)
 
     # Sélectionner les valeurs SHAP pour la classe 1
-    print("avant shap_values_class_1")
+    print(f'shape shap_values: {shap_values.shape}')
     shap_values_class_1 = shap_values[1][0]
-    print("après shap_values_class_1")
+    print(f'shape shap_values_class_1: {shap_values_class_1.shape}')
 
     return explainer, shap_values_class_1
 
