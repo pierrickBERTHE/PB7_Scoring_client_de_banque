@@ -189,7 +189,9 @@ def get_shap_values(df, final_estimator):
     shap_values = explainer.shap_values(df)
 
     # Sélectionner les valeurs SHAP pour la classe 1
+    print("avant shap_values_class_1")
     shap_values_class_1 = shap_values[1][0]
+    print("après shap_values_class_1")
 
     return explainer, shap_values_class_1
 
@@ -308,6 +310,7 @@ def predict():
         explainer, shap_values_class_1 = get_shap_values(df, final_estimator)
 
         # Convertir le tableau 1D en tableau 2D pour créer un DataFrame
+        print("reshape des valeurs SHAP")
         shap_values_class_1_2d = shap_values_class_1.reshape(1, -1)
 
         # Extraire les caractéristiques les plus importantes
