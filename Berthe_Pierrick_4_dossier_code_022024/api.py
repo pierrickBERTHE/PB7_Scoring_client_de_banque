@@ -190,7 +190,8 @@ def get_shap_values(df, final_estimator):
 
     # Sélectionner les valeurs SHAP pour la classe 1
     print(f'shape shap_values: {shap_values.shape}')
-    shap_values_class_1 = shap_values[1][0]
+    # shap_values_class_1 = shap_values[1][0]
+    shap_values_class_1 = shap_values[0]
     print(f'shape shap_values_class_1: {shap_values_class_1.shape}')
 
     return explainer, shap_values_class_1
