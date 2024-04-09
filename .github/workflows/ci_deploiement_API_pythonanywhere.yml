@@ -11,15 +11,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: 
-            Berthe_Pierrick_4_dossier_code_02204
+    # defaults:
+    #   run:
+    #     working-directory: 
+    #         Berthe_Pierrick_4_dossier_code_02204
 
     steps:
     - uses: actions/checkout@v4
-      with:
-        path: Berthe_Pierrick_4_dossier_code_02204
+    #   with:
+    #     path: Berthe_Pierrick_4_dossier_code_02204
 
     - name: installation_python_version_3.11.5
       uses: actions/setup-python@v5
@@ -48,6 +48,9 @@ jobs:
         echo "Contents of Working Directory: $(ls -l)"
         echo "Contents of site-packages: $(ls -l env/lib/python*/site-packages)"
 
+    - name: change_directory to Berthe_Pierrick_4_dossier_code_02204
+      run: cd Berthe_Pierrick_4_dossier_code_02204
+
     - name: tests_unitaires_API
       run: |
         python tests_unitaires/test_unitaire_api.py
@@ -61,11 +64,21 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    defaults:
-      run:
-        working-directory: Berthe_Pierrick_4_dossier_code_02204
+    # defaults:
+    #   run:
+    #     working-directory: Berthe_Pierrick_4_dossier_code_02204
 
     steps:
+    - name: Print debugging information
+      run: |
+        echo "Python Version: $(python --version)"
+        echo "Working Directory: $(pwd)"
+        echo "Contents of Working Directory: $(ls -l)"
+        echo "Contents of site-packages: $(ls -l env/lib/python*/site-packages)"
+
+    - name: change_directory to Berthe_Pierrick_4_dossier_code_02204
+      run: cd Berthe_Pierrick_4_dossier_code_02204
+
     - name: download_artifact_for_deploy_job
       uses: actions/download-artifact@v4
       with:
