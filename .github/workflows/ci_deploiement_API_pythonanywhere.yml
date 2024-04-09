@@ -2,10 +2,10 @@ name: ci_deploiement_API_pythonanywhere
 
 # Workflow declenché lors d'un push sur branche main & manuellement sur Github
 on:
-    push:
-        branches:
-        - main
-    workflow_dispatch:
+  push:
+    branches:
+    - main
+  workflow_dispatch:
 
 # 2 jobs dans le workflow : build & deploy
 jobs:
@@ -19,8 +19,8 @@ jobs:
         - uses: actions/checkout@v4
 
         - name: installation_python_version_3.11.5
-          uses: actions/setup-python@v5
-          with:
+        uses: actions/setup-python@v5
+        with:
             python-version: '3.11.5'
 
         - name: creation_virtual_env
@@ -59,14 +59,14 @@ jobs:
 
         steps:
             - name: download_artifact_for_deploy_job
-              uses: actions/download-artifact@v4
-              with:
+            uses: actions/download-artifact@v4
+            with:
                 name: API_pythonanywhere
                 path: .
 
             - name: Re-Deploy Pythonanywhere Django API
-              uses: umuttopalak/pythonanywhere-deploy-action@v1.0.0
-              with:
+            uses: umuttopalak/pythonanywhere-deploy-action@v1.0.0
+            with:
                 host: 'www.eu.pythonanywhere.com'
                 username: ${{ secrets.USERNAME }}
                 api_token: ${{ secrets.API_TOKEN }}
