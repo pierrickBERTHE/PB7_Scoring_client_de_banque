@@ -54,7 +54,7 @@ def create_path(directory, filename):
 MODEL_PATH = create_path("mlflow_model", "model.pkl")
 
 # Chemin du fichier  contenant les données
-DATA_PATH_ZIP = create_path("data\\cleaned", file_name + ".zip")
+DATA_PATH_ZIP = create_path("data/cleaned", file_name + ".zip")
 DATA_FILE_CSV = file_name + ".csv"
 
 # ================== étape 3 : Chargement du modèle ========================
