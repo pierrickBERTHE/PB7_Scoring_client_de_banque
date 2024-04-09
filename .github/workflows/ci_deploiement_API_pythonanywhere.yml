@@ -47,24 +47,16 @@ jobs:
         echo "Working Directory: $(pwd)"
         echo "Contents of Working Directory: $(ls -l)"
 
-    - name: change_directory to Berthe_Pierrick_4_dossier_code_022024
-      run: cd Berthe_Pierrick_4_dossier_code_022024
-
-    - name: Print debugging information after cd
-      run: |
-        echo "Python Version: $(python --version)"
-        echo "Working Directory: $(pwd)"
-        echo "Contents of Working Directory: $(ls -l)"
-
     - name: tests_unitaires_API
       run: |
+        cd Berthe_Pierrick_4_dossier_code_022024 
         python tests_unitaires/test_unitaire_api.py
 
     - name: save_artifact_for_deploy_job
       uses: actions/upload-artifact@v4
       with:
         name: API_pythonanywhere
-        path: .
+        path: Berthe_Pierrick_4_dossier_code_022024
 
   deploy:
     runs-on: ubuntu-latest
@@ -79,16 +71,12 @@ jobs:
         echo "Python Version: $(python --version)"
         echo "Working Directory: $(pwd)"
         echo "Contents of Working Directory: $(ls -l)"
-        echo "Contents of site-packages: $(ls -l env/lib/python*/site-packages)"
-
-    - name: change_directory to Berthe_Pierrick_4_dossier_code_022024
-      run: cd Berthe_Pierrick_4_dossier_code_022024
 
     - name: download_artifact_for_deploy_job
       uses: actions/download-artifact@v4
       with:
         name: API_pythonanywhere
-        path: .
+        path: Berthe_Pierrick_4_dossier_code_022024
 
     - name: Re-Deploy Pythonanywhere Django API
       uses: umuttopalak/pythonanywhere-deploy-action@v1.0.0
