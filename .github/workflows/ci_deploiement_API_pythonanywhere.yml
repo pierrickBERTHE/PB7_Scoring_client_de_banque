@@ -18,6 +18,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        path: Berthe_Pierrick_4_dossier_code_02204
 
     - name: installation_python_version_3.11.5
       uses: actions/setup-python@v5
