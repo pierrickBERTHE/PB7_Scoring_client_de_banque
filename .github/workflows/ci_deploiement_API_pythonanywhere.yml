@@ -11,10 +11,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # defaults:
-    #   run:
-    #     working-directory: 
-    #         ../Berthe_Pierrick_4_dossier_code_02204
+    defaults:
+      run:
+        working-directory: 
+            Berthe_Pierrick_4_dossier_code_02204
 
     steps:
     - uses: actions/checkout@v4
