@@ -41,9 +41,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Print debugging information
+    - name: Print dossier source
       run: |
         echo "Python Version: $(python --version)"
+        echo "Working Directory: $(pwd)"
+        echo "Contents of Working Directory: $(ls -l)"
+
+    - name: Print dossier Berthe_Pierrick_4_dossier_code_022024
+      run: |
+        cd Berthe_Pierrick_4_dossier_code_022024
         echo "Working Directory: $(pwd)"
         echo "Contents of Working Directory: $(ls -l)"
 
