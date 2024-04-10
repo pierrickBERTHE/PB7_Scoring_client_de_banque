@@ -19,7 +19,7 @@ jobs:
 
     - name: Deploy Pythonanywhere
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@www.eu.pythonanywhere.com ls
+        ssh -o StrictHostKeyChecking=no -v ${{ secrets.USERNAME }}@www.eu.pythonanywhere.com ls
 
     - name: Print debugging information
       run: |
