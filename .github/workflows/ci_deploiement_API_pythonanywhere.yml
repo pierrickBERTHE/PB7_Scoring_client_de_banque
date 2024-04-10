@@ -26,11 +26,10 @@ jobs:
         write-mode: overwrite
 
     - name: debug
-      run: |
-        chmod 600 ~/.ssh/id_rsa_github.pub
-        echo "Public Key: $(cat ~/.ssh/id_rsa_github.pub)"
-        ls ~/.ssh
-
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.PRIVATE_KEY }}
+        
     - name: Deploy Pythonanywhere
       run: |
         ssh -o StrictHostKeyChecking=no -v ${{ secrets.USERNAME }}@www.eu.pythonanywhere.com ls
