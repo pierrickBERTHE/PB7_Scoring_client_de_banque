@@ -22,8 +22,8 @@ jobs:
       with:
         path: ${{ env.home }}/.ssh/id_rsa_github.pub
         content: |
-        ${{ secrets.PUBKEY }}
-      write-mode: overwrite
+          ${{ secrets.PUBKEY }}
+        write-mode: overwrite
 
     - name: Deploy Pythonanywhere
       run: |
