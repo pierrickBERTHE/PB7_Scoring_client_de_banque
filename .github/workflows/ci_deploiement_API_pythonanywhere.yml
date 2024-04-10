@@ -25,6 +25,12 @@ jobs:
           ${{ secrets.PUBKEY }}
         write-mode: overwrite
 
+    - name: debug
+      run: |
+        chmod 600 ~/.ssh/id_rsa_github.pub
+        echo "Public Key: $(cat ~/.ssh/id_rsa_github.pub)"
+        ls ~/.ssh
+
     - name: Deploy Pythonanywhere
       run: |
         ssh -o StrictHostKeyChecking=no -v ${{ secrets.USERNAME }}@www.eu.pythonanywhere.com ls
