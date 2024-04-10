@@ -75,12 +75,6 @@ jobs:
     #     working-directory: Berthe_Pierrick_4_dossier_code_022024
 
     steps:
-    - name: Print debugging information
-      run: |
-        echo "Python Version: $(python --version)"
-        echo "Working Directory: $(pwd)"
-        echo "Contents of Working Directory: $(ls -l)"
-
     - name: download_artifact_for_deploy_job
       uses: actions/download-artifact@v4
       with:
@@ -95,3 +89,10 @@ jobs:
         api_token: ${{ secrets.API_TOKEN }}
         domain_name: ${{ secrets.DOMAIN_NAME }}
         console_id:  ${{ secrets.CONSOLE_ID }}
+
+    - name: Print debugging information
+      run: |
+        echo "Python Version: $(python --version)"
+        echo "Working Directory: $(pwd)"
+        echo "Contents of Working Directory: $(ls -l)"
+  

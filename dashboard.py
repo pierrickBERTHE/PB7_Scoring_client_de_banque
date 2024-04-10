@@ -32,7 +32,7 @@ print("os.getcwd():",os.getcwd(), "\n")
 # URL de l'API Flask (local ou distant)
 hostname = socket.gethostname()
 if hostname in ['ASUS-Vivobook-Pierrick']:
-    URL_API = 'http://127.0.0.1:5000'
+    URL_API = 'http://127.0.0.1:6000'
 else:
     URL_API = 'http://pierrickberthe.eu.pythonanywhere.com'
 print("URL_API:",URL_API, "\n")
@@ -180,7 +180,12 @@ def main():
             st.write('')
 
             # Affichage de la prédiction
-            st.dataframe(response['prediction'])
+            ligne_prediction = {
+                'explainer': response['prediction']['explainer'][1],
+                'prediction': response['prediction']['prediction'],
+                'probabilité': response['prediction']['probabilité']
+            }
+            st.dataframe(ligne_prediction)
 
             # Transformation des données pour SHAP en array puis en dataframe
             shap_values_subset_array = np.array(
@@ -194,7 +199,7 @@ def main():
             # Affichage feature importance locale
             st.write('Feature importance locale :')
             shap.force_plot(
-                response['prediction']["explainer"],
+                response['prediction']["explainer"][1],
                 shap_values_subset_array,
                 client_data_subset_df,
                 matplotlib=True

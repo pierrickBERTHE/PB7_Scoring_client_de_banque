@@ -189,10 +189,8 @@ def get_shap_values(df, final_estimator):
     shap_values = explainer.shap_values(df)
 
     # Sélectionner les valeurs SHAP pour la classe 1
-    print(f'shape shap_values: {shap_values.shape}')
     # shap_values_class_1 = shap_values[1][0]
     shap_values_class_1 = shap_values[0]
-    print(f'shape shap_values_class_1: {shap_values_class_1.shape}')
 
     return explainer, shap_values_class_1
 
@@ -407,7 +405,7 @@ def feature_importance_globale():
 # Exécution de l'application Flask si le script est exécuté directement
 if __name__ == '__main__':
     try:
-        app.run()
+        app.run(port=6000)
     except SystemExit as e:
         print(f"SystemExit exception: {e}")
         print("Le programme n'a pas pu démarrer le serveur Flask.")
