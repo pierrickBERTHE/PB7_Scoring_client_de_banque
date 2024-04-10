@@ -20,7 +20,7 @@ jobs:
     - name: create public key
       uses: DamianReeves/write-file-action@master
       with:
-        path: ${{ env.home }}/.ssh/id_rsa_github.pub
+        path: ~/.ssh/id_rsa_github.pub
         contents: |
           ${{ secrets.PUBKEY }}
         write-mode: overwrite
