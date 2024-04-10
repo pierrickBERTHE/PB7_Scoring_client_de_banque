@@ -1,4 +1,4 @@
-name: ci_deploiement_API_pythonanywhere
+name: ci_deploiement_API_pythonanywhere_new
 
 # Workflow declenché lors d'un push sur branche main & manuellement sur Github
 on:
@@ -9,86 +9,17 @@ on:
 
 # 2 jobs dans le workflow : build & deploy
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    # defaults:
-    #   run:
-    #     working-directory: 
-    #         Berthe_Pierrick_4_dossier_code_022024
-
-    steps:
-    - uses: actions/checkout@v4
-    #   with:
-    #     path: Berthe_Pierrick_4_dossier_code_022024
-
-    - name: installation_python_version_3.11.5
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11.5'
-
-    - name: print current directory
-      run: |
-        echo "Current directory is $(pwd)"
-        echo "Contents of current directory $(ls -l)"
-
-    - name: creation_virtual_env
-      run: |
-        python -m venv env
-        source env/bin/activate
-
-    - name: installation_requirements
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Print dossier source
-      run: |
-        echo "Python Version: $(python --version)"
-        echo "Working Directory: $(pwd)"
-        echo "Contents of Working Directory: $(ls -l)"
-
-    - name: Print dossier Berthe_Pierrick_4_dossier_code_022024
-      run: |
-        cd Berthe_Pierrick_4_dossier_code_022024
-        echo "Working Directory: $(pwd)"
-        echo "Contents of Working Directory: $(ls -l)"
-        cd data/cleaned
-        echo "Working Directory: $(pwd)"
-        echo "Contents of Working Directory: $(ls -l)"
-
-    - name: tests_unitaires_API
-      run: |
-        cd Berthe_Pierrick_4_dossier_code_022024 
-        python tests_unitaires/test_unitaire_api.py
-
-    - name: save_artifact_for_deploy_job
-      uses: actions/upload-artifact@v4
-      with:
-        name: API_pythonanywhere
-        path: Berthe_Pierrick_4_dossier_code_022024
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
-    # defaults:
-    #   run:
-    #     working-directory: Berthe_Pierrick_4_dossier_code_022024
 
     steps:
-    - name: download_artifact_for_deploy_job
-      uses: actions/download-artifact@v4
-      with:
-        name: API_pythonanywhere
-        path: Berthe_Pierrick_4_dossier_code_022024
+    - name: checkout
+      uses: actions/checkout@v4
 
-    - name: Re-Deploy Pythonanywhere Django API
-      uses: umuttopalak/pythonanywhere-deploy-action@v1.0.0
-      with:
-        host: 'www.eu.pythonanywhere.com'
-        username: ${{ secrets.USERNAME }}
-        api_token: ${{ secrets.API_TOKEN }}
-        domain_name: ${{ secrets.DOMAIN_NAME }}
-        console_id:  ${{ secrets.CONSOLE_ID }}
+    - name: Deploy Pythonanywhere
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@www.eu.pythonanywhere.com ls
 
     - name: Print debugging information
       run: |
