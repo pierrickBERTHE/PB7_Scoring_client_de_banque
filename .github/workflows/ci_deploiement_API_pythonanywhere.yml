@@ -17,12 +17,6 @@ jobs:
     - name: checkout
       uses: actions/checkout@v4
 
-    - name: Create pubkey
-      run: |
-        touch ~/.ssh/id_pythonanywhere.pub
-        echo "${{ secrets.PUBKEY }}" >> ~/.ssh/id_pythonanywhere.pub
-        chmod 600 ~/.ssh/id_pythonanywhere.pub
-
     - name: Deploy Pythonanywhere
       run: |
         ssh -o StrictHostKeyChecking=no -v ${{ secrets.USERNAME }}@www.eu.pythonanywhere.com ls
