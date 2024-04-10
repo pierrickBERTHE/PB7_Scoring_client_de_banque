@@ -21,7 +21,7 @@ jobs:
       uses: DamianReeves/write-file-action@master
       with:
         path: ${{ env.home }}/.ssh/id_rsa_github.pub
-        content: |
+        contents: |
           ${{ secrets.PUBKEY }}
         write-mode: overwrite
 
