@@ -17,6 +17,14 @@ jobs:
     - name: checkout
       uses: actions/checkout@v4
 
+    - name: create public key
+      uses: DamianReeves/write-file-action@master
+      with:
+        path: ${{ env.home }}/.ssh/id_rsa_github.pub
+        content: |
+        ${{ secrets.PUBKEY }}
+      write-mode: overwrite
+
     - name: Deploy Pythonanywhere
       run: |
         ssh -o StrictHostKeyChecking=no -v ${{ secrets.USERNAME }}@www.eu.pythonanywhere.com ls
