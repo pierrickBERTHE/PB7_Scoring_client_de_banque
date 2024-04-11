@@ -80,6 +80,8 @@ jobs:
         key : ${{ secrets.OMG_SECRET }}
         port : 22
         script : |
+          pwd
+          ls -l
           cd mysite
           git pull origin master
           git status
