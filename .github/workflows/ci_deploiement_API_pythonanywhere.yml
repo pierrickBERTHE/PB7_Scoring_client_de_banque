@@ -72,18 +72,14 @@ jobs:
     #     name: API_pythonanywhere
     #     path: Berthe_Pierrick_4_dossier_code_022024
 
-    - name: Deploy project with SSH
-      uses: easingthemes/ssh-deploy@main
+    - name: testing pythonanywhere server ssh connection
+      uses: appleboy/ssh-action@master
       with:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        REMOTE_HOST: eu.pythonanywhere.com
-        REMOTE_USER: ${{ secrets.USERNAME }}
-        SOURCE: "Berthe_Pierrick_4_dossier_code_022024"
-        TARGET: "~/"
-
-    - name: Print debugging information
-      run: |
-        echo "Python Version: $(python --version)"
-        echo "Working Directory: $(pwd)"
-        echo "Contents of Working Directory: $(ls -l)"
-
+        host : ssh.eu.pythonanywhere.com
+        username : pierrickberthe
+        key : ${{ secrets.OMG_SECRET }}
+        port : 22
+        script : |
+          cd mysite
+          git pull origin master
+          git status
