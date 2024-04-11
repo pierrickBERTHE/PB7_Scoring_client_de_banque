@@ -95,7 +95,7 @@ jobs:
     - name: deploy stage
       uses: fjogeleit/http-request-action@v1
       with:
-        url: 'http://pierrickberthe.eu.pythonanywhere.com/'
+        url: 'https://eu.pythonanywhere.com'
         method: 'POST'
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
