@@ -82,12 +82,12 @@ jobs:
         script : |
           pwd
           ls -l
-          cd mysite/
           if [ -d "Projet7_OCR_DataScientist" ]; then
             cd Projet7_OCR_DataScientist
             git pull origin main
           else
             git clone git@github.com:pierrickBERTHE/Projet7_OCR_DataScientist.git
+            git status
             cd Projet7_OCR_DataScientist
           fi
           cd Berthe_Pierrick_4_dossier_code_022024
