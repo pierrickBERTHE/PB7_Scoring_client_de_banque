@@ -93,3 +93,12 @@ jobs:
           cd Berthe_Pierrick_4_dossier_code_022024
           pwd
           ls -l
+
+    - name: Re-Deploy Pythonanywhere Flask API
+      uses: umuttopalak/pythonanywhere-deploy-action@v1.0.0
+      with:
+        host: 'www.eu.pythonanywhere.com'
+        username: ${{ secrets.USERNAME }}
+        api_token:  ${{ secrets.API_TOKEN }} 
+        domain_name: pierrickberthe.eu.pythonanywhere.com/
+        console_id: ${{ secrets.CONSOLE_ID }}
