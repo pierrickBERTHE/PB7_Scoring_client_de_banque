@@ -61,29 +61,42 @@ jobs:
         name: API_pythonanywhere
         path: Berthe_Pierrick_4_dossier_code_022024
 
-  deploy:
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: build
+
+  #   steps:
+  #   - name: download_artifact_for_deploy_job
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: API_pythonanywhere
+  #       path: Berthe_Pierrick_4_dossier_code_022024
+
+  #   - name: Deploy project with SSH
+  #     uses: easingthemes/ssh-deploy@v2.1.4
+  #     with:
+  #       SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+  #       REMOTE_HOST: ${{ secrets.DOMAIN_NAME }}
+  #       REMOTE_USER: ${{ secrets.USERNAME }}
+  #       SOURCE: "Berthe_Pierrick_4_dossier_code_022024"
+  #       TARGET: "~/"
+
+
+  #   - name: Print debugging information
+  #     run: |
+  #       echo "Python Version: $(python --version)"
+  #       echo "Working Directory: $(pwd)"
+  #       echo "Contents of Working Directory: $(ls -l)"
+
+
+  http_request_job:
     runs-on: ubuntu-latest
-    needs: build
-
     steps:
-    - name: download_artifact_for_deploy_job
-      uses: actions/download-artifact@v4
+    - name: deploy stage
+      uses: fjogeleit/http-request-action@v1
       with:
-        name: API_pythonanywhere
-        path: Berthe_Pierrick_4_dossier_code_022024
-
-    - name: Deploy project with SSH
-      uses: easingthemes/ssh-deploy@v2.1.4
-      with:
-        SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-        REMOTE_HOST: ${{ secrets.DOMAIN_NAME }}
-        REMOTE_USER: ${{ secrets.USERNAME }}
-        SOURCE: "Berthe_Pierrick_4_dossier_code_022024"
-        TARGET: "~/"
-
-
-    - name: Print debugging information
-      run: |
-        echo "Python Version: $(python --version)"
-        echo "Working Directory: $(pwd)"
-        echo "Contents of Working Directory: $(ls -l)"
+        url: 'http://pierrickberthe.eu.pythonanywhere.com/'
+        method: 'POST'
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+        customHeaders: '{"Content-Type": "application/json"}'
