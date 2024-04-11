@@ -83,5 +83,8 @@ jobs:
           pwd
           ls -l
           cd mysite/
+          git init
+          git pull origin master
+          git status
           pwd
           ls -l
