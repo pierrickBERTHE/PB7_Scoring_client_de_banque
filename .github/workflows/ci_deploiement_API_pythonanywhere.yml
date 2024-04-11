@@ -73,17 +73,17 @@ jobs:
         path: Berthe_Pierrick_4_dossier_code_022024
 
     - name: Deploy project with SSH
-    uses: easingthemes/ssh-deploy@v2.1.4
-    env:
-      SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-      REMOTE_HOST: ${{ secrets.DOMAIN_NAME }}
-      REMOTE_USER: ${{ secrets.USERNAME }}
-      SOURCE: "Berthe_Pierrick_4_dossier_code_022024"
-      TARGET: "~/"
+      uses: easingthemes/ssh-deploy@v2.1.4
+      with:
+        SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        REMOTE_HOST: ${{ secrets.DOMAIN_NAME }}
+        REMOTE_USER: ${{ secrets.USERNAME }}
+        SOURCE: "Berthe_Pierrick_4_dossier_code_022024"
+        TARGET: "~/"
+
 
     - name: Print debugging information
-    run: |
-      echo "Python Version: $(python --version)"
-      echo "Working Directory: $(pwd)"
-      echo "Contents of Working Directory: $(ls -l)"
-  
+      run: |
+        echo "Python Version: $(python --version)"
+        echo "Working Directory: $(pwd)"
+        echo "Contents of Working Directory: $(ls -l)"
