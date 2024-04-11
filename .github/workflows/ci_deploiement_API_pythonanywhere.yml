@@ -83,7 +83,7 @@ jobs:
           pwd
           ls -l
           cd mysite/
-          git init
+          git clone git@github.com:pierrickBERTHE/Projet7_OCR_DataScientist.git
           git pull origin master
           git status
           pwd
