@@ -76,7 +76,7 @@ jobs:
       uses: easingthemes/ssh-deploy@main
       with:
         SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-        REMOTE_HOST: https://eu.pythonanywhere.com
+        REMOTE_HOST: eu.pythonanywhere.com
         REMOTE_USER: ${{ secrets.USERNAME }}
         SOURCE: "Berthe_Pierrick_4_dossier_code_022024"
         TARGET: "~/"
