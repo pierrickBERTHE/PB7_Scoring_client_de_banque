@@ -82,6 +82,6 @@ jobs:
         script : |
           pwd
           ls -l
-          cd mysite
-          git pull origin master
-          git status
+          cd mysite/
+          pwd
+          ls -l
