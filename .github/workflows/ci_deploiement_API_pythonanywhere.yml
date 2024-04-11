@@ -75,8 +75,8 @@ jobs:
     - name: testing pythonanywhere server ssh connection
       uses: appleboy/ssh-action@master
       with:
-        host : ssh.eu.pythonanywhere.com
-        username : pierrickberthe
+        host : ${{ secrets.HOST_PYTHONANYWHERE }}
+        username : ${{ secrets.USERNAME }}
         key : ${{ secrets.OMG_SECRET }}
         port : 22
         script : |
@@ -84,7 +84,6 @@ jobs:
           ls -l
           cd mysite/
           git clone git@github.com:pierrickBERTHE/Projet7_OCR_DataScientist.git
-          git status
           cd Projet7_OCR_DataScientist/Berthe_Pierrick_4_dossier_code_022024
           pwd
           ls -l
