@@ -9,94 +9,81 @@ on:
 
 # 2 jobs dans le workflow : build & deploy
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: installation_python_version_3.11.5
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11.5'
-
-    - name: print current directory
-      run: |
-        echo "Current directory is $(pwd)"
-        echo "Contents of current directory $(ls -l)"
-
-    - name: creation_virtual_env
-      run: |
-        python -m venv env
-        source env/bin/activate
-
-    - name: installation_requirements
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Print dossier source
-      run: |
-        echo "Python Version: $(python --version)"
-        echo "Working Directory: $(pwd)"
-        echo "Contents of Working Directory: $(ls -l)"
-
-    - name: Print dossier Berthe_Pierrick_4_dossier_code_022024
-      run: |
-        cd Berthe_Pierrick_4_dossier_code_022024
-        echo "Working Directory: $(pwd)"
-        echo "Contents of Working Directory: $(ls -l)"
-        cd data/cleaned
-        echo "Working Directory: $(pwd)"
-        echo "Contents of Working Directory: $(ls -l)"
-
-    - name: tests_unitaires_API
-      run: |
-        cd Berthe_Pierrick_4_dossier_code_022024 
-        python tests_unitaires/test_unitaire_api.py
-
-    - name: save_artifact_for_deploy_job
-      uses: actions/upload-artifact@v4
-      with:
-        name: API_pythonanywhere
-        path: Berthe_Pierrick_4_dossier_code_022024
-
-  # deploy:
+  # build:
   #   runs-on: ubuntu-latest
-  #   needs: build
 
   #   steps:
-  #   - name: download_artifact_for_deploy_job
-  #     uses: actions/download-artifact@v4
+  #   - uses: actions/checkout@v4
+
+  #   - name: installation_python_version_3.11.5
+  #     uses: actions/setup-python@v5
   #     with:
-  #       name: API_pythonanywhere
-  #       path: Berthe_Pierrick_4_dossier_code_022024
+  #       python-version: '3.11.5'
 
-  #   - name: Deploy project with SSH
-  #     uses: easingthemes/ssh-deploy@v2.1.4
-  #     with:
-  #       SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-  #       REMOTE_HOST: ${{ secrets.DOMAIN_NAME }}
-  #       REMOTE_USER: ${{ secrets.USERNAME }}
-  #       SOURCE: "Berthe_Pierrick_4_dossier_code_022024"
-  #       TARGET: "~/"
+  #   - name: print current directory
+  #     run: |
+  #       echo "Current directory is $(pwd)"
+  #       echo "Contents of current directory $(ls -l)"
 
+  #   - name: creation_virtual_env
+  #     run: |
+  #       python -m venv env
+  #       source env/bin/activate
 
-  #   - name: Print debugging information
+  #   - name: installation_requirements
+  #     run: |
+  #       python -m pip install --upgrade pip
+  #       pip install -r requirements.txt
+
+  #   - name: Print dossier source
   #     run: |
   #       echo "Python Version: $(python --version)"
   #       echo "Working Directory: $(pwd)"
   #       echo "Contents of Working Directory: $(ls -l)"
 
+  #   - name: Print dossier Berthe_Pierrick_4_dossier_code_022024
+  #     run: |
+  #       cd Berthe_Pierrick_4_dossier_code_022024
+  #       echo "Working Directory: $(pwd)"
+  #       echo "Contents of Working Directory: $(ls -l)"
+  #       cd data/cleaned
+  #       echo "Working Directory: $(pwd)"
+  #       echo "Contents of Working Directory: $(ls -l)"
 
-  http_request_job:
+  #   - name: tests_unitaires_API
+  #     run: |
+  #       cd Berthe_Pierrick_4_dossier_code_022024 
+  #       python tests_unitaires/test_unitaire_api.py
+
+  #   - name: save_artifact_for_deploy_job
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: API_pythonanywhere
+  #       path: Berthe_Pierrick_4_dossier_code_022024
+
+  deploy:
     runs-on: ubuntu-latest
+    # needs: build
+
     steps:
-    - name: deploy stage
-      uses: fjogeleit/http-request-action@v1
+    # - name: download_artifact_for_deploy_job
+    #   uses: actions/download-artifact@v4
+    #   with:
+    #     name: API_pythonanywhere
+    #     path: Berthe_Pierrick_4_dossier_code_022024
+
+    - name: Deploy project with SSH
+      uses: easingthemes/ssh-deploy@v2.1.4
       with:
-        url: 'https://pierrickberthe.eu.pythonanywhere.com'
-        method: 'POST'
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
-        customHeaders: '{"Content-Type": "application/json"}'
+        SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        REMOTE_HOST: ${{ secrets.DOMAIN_NAME }}
+        REMOTE_USER: ${{ secrets.USERNAME }}
+        SOURCE: "Berthe_Pierrick_4_dossier_code_022024"
+        TARGET: "~/"
+
+    - name: Print debugging information
+      run: |
+        echo "Python Version: $(python --version)"
+        echo "Working Directory: $(pwd)"
+        echo "Contents of Working Directory: $(ls -l)"
+
