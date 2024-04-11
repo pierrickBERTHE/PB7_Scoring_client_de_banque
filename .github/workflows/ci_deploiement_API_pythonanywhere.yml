@@ -85,7 +85,7 @@ jobs:
           cd mysite/
           if [ -d "Projet7_OCR_DataScientist" ]; then
             cd Projet7_OCR_DataScientist
-            git pull origin master
+            git pull origin main
           else
             git clone git@github.com:pierrickBERTHE/Projet7_OCR_DataScientist.git
             cd Projet7_OCR_DataScientist
