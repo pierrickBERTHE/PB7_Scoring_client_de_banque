@@ -9,57 +9,57 @@ on:
 
 # 2 jobs dans le workflow : build & deploy
 jobs:
-  # build:
-  #   runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #   - uses: actions/checkout@v4
+    steps:
+    - uses: actions/checkout@v4
 
-  #   - name: installation_python_version_3.11.5
-  #     uses: actions/setup-python@v5
-  #     with:
-  #       python-version: '3.11.5'
+    - name: installation_python_version_3.11.5
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11.5'
 
-  #   - name: print current directory
-  #     run: |
-  #       echo "Current directory is $(pwd)"
-  #       echo "Contents of current directory $(ls -l)"
+    - name: print current directory
+      run: |
+        echo "Current directory is $(pwd)"
+        echo "Contents of current directory $(ls -l)"
 
-  #   - name: creation_virtual_env
-  #     run: |
-  #       python -m venv env
-  #       source env/bin/activate
+    - name: creation_virtual_env
+      run: |
+        python -m venv env
+        source env/bin/activate
 
-  #   - name: installation_requirements
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       pip install -r requirements.txt
+    - name: installation_requirements
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
 
-  #   - name: Print dossier source
-  #     run: |
-  #       echo "Python Version: $(python --version)"
-  #       echo "Working Directory: $(pwd)"
-  #       echo "Contents of Working Directory: $(ls -l)"
+    - name: Print dossier source
+      run: |
+        echo "Python Version: $(python --version)"
+        echo "Working Directory: $(pwd)"
+        echo "Contents of Working Directory: $(ls -l)"
 
-  #   - name: Print dossier Berthe_Pierrick_4_dossier_code_022024
-  #     run: |
-  #       cd Berthe_Pierrick_4_dossier_code_022024
-  #       echo "Working Directory: $(pwd)"
-  #       echo "Contents of Working Directory: $(ls -l)"
-  #       cd data/cleaned
-  #       echo "Working Directory: $(pwd)"
-  #       echo "Contents of Working Directory: $(ls -l)"
+    - name: Print dossier Berthe_Pierrick_4_dossier_code_022024
+      run: |
+        cd Berthe_Pierrick_4_dossier_code_022024
+        echo "Working Directory: $(pwd)"
+        echo "Contents of Working Directory: $(ls -l)"
+        cd data/cleaned
+        echo "Working Directory: $(pwd)"
+        echo "Contents of Working Directory: $(ls -l)"
 
-  #   - name: tests_unitaires_API
-  #     run: |
-  #       cd Berthe_Pierrick_4_dossier_code_022024 
-  #       python tests_unitaires/test_unitaire_api.py
+    - name: tests_unitaires_API
+      run: |
+        cd Berthe_Pierrick_4_dossier_code_022024 
+        python tests_unitaires/test_unitaire_api.py
 
-  #   - name: save_artifact_for_deploy_job
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: API_pythonanywhere
-  #       path: Berthe_Pierrick_4_dossier_code_022024
+    - name: save_artifact_for_deploy_job
+      uses: actions/upload-artifact@v4
+      with:
+        name: API_pythonanywhere
+        path: Berthe_Pierrick_4_dossier_code_022024
 
   deploy:
     runs-on: ubuntu-latest
@@ -87,6 +87,9 @@ jobs:
             git pull origin main
           else
             git clone git@github.com:pierrickBERTHE/Projet7_OCR_DataScientist.git
+            python -m venv env
+            source env/bin/activate
+            python -m pip install --upgrade pip
             cd Projet7_OCR_DataScientist
             git status
             pip install -r requirements.txt
