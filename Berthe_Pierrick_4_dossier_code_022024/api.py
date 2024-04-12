@@ -164,15 +164,19 @@ def get_prediction(df, seuil_predict=0.08):
     Prédit la classe de l'instance en utilisant le modèle pré-entraîné.
     """
     # Créer un wrapper pour le modèle avec un seuil personnalisé
+    print("Création du wrapper pour le modèle avec un seuil personnalisé")
     wrapper = CustomModelWrapper(model, threshold=seuil_predict)
 
     # Prédire la classe de l'instance
+    print("Prédiction de la classe de l'instance")
     prediction = wrapper.predict(None, df)[0]
 
     # Prédire la probabilité de la classe 1
+    print("Prédiction de la probabilité de la classe 1")
     prediction_proba = wrapper.predict_proba(df)[0]
 
     # Sélectionner la probabilité de la classe 1
+    print("Sélection de la probabilité de la classe 1")
     proba_class_1 = prediction_proba[1]
 
     return prediction, proba_class_1
