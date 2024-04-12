@@ -140,8 +140,8 @@ class CustomModelWrapper(mlflow.pyfunc.PythonModel):
         array: Les prédictions de classe pour les échantillons.
         """
         probabilities = self.model.predict_proba(model_input)
-        predictions = (probabilities[:, 1] >= self.threshold).astype(int)
-        return predictions
+        prediction = (probabilities[:, 1] >= self.threshold).astype(int)
+        return prediction
 
     def predict_proba(self, model_input, context=None):
         """
@@ -155,7 +155,8 @@ class CustomModelWrapper(mlflow.pyfunc.PythonModel):
         Retourne:
         array: Les probabilités de classe pour les échantillons.
         """
-        return self.model.predict_proba(model_input)
+        probabilities = self.model.predict_proba(model_input)[0]
+        return probabilities
 
 # ====================== étape 5 : Fonctions ============================
 
@@ -163,21 +164,27 @@ def get_prediction(df, seuil_predict=0.08):
     """
     Prédit la classe de l'instance en utilisant le modèle pré-entraîné.
     """
-    # Créer un wrapper pour le modèle avec un seuil personnalisé
     print("Création du wrapper pour le modèle avec un seuil personnalisé")
     wrapper = CustomModelWrapper(model, threshold=seuil_predict)
+    print("Wrapper créé")
 
-    # Prédire la classe de l'instance
     print("Prédiction de la classe de l'instance")
-    prediction = wrapper.predict(None, df)[0]
+    print("Données d'entrée : ", df)
+    # prediction = wrapper.predict(None, df)[0]
+    prediction = wrapper.predict(None, df)
+    print("Prédiction effectuée : ", prediction)
+
+    # ...
 
     # Prédire la probabilité de la classe 1
     print("Prédiction de la probabilité de la classe 1")
-    prediction_proba = wrapper.predict_proba(df)[0]
+    # prediction_proba = wrapper.predict_proba(df)[0]
+    proba_class_1 = wrapper.predict_proba(df)[1]
+    print("Prédiction de la proba de la classe 1 effectuée : ", proba_class_1)
 
-    # Sélectionner la probabilité de la classe 1
-    print("Sélection de la probabilité de la classe 1")
-    proba_class_1 = prediction_proba[1]
+    # # Sélectionner la probabilité de la classe 1
+    # print("Sélection de la probabilité de la classe 1")
+    # proba_class_1 = prediction_proba[1]
 
     return prediction, proba_class_1
 
