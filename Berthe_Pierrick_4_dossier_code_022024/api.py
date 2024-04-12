@@ -11,7 +11,6 @@ URL de l'API : http://pierrickberthe.eu.pythonanywhere.com/
 
 # ============== étape 1 : Importation des librairies ====================
 
-import logging
 from flask import Flask, request, jsonify, send_file
 import pandas as pd
 import joblib
@@ -105,24 +104,16 @@ def load_data(file_name_zip, file_name_csv, _model):
 data = load_data(DATA_PATH_ZIP, DATA_FILE_CSV, model)
 print('chargement des données terminé\n')
 
-# ====== étape 4 : Wrapper pour prediction avec seuil personalisé ===========
+# ====== étape 5 : Wrapper pour prediction avec seuil personalisé ===========
 
 class CustomModelWrapper(mlflow.pyfunc.PythonModel):
     """
     Enveloppe personnalisée pour un modèle de machine learning, avec un seuil
     de prédiction personnalisé.
-
-    Attributs:
-    model (object): Le modèle de machine learning à envelopper.
-    threshold (float): Le seuil de prédiction. Par défaut à 0.5.
     """
     def __init__(self, model, threshold=0.5):
         """
         Initialise l'enveloppe du modèle avec le modèle et le seuil donnés.
-
-        Paramètres:
-        model (object): Le modèle de machine learning à envelopper.
-        threshold (float): Le seuil de prédiction. Par défaut à 0.5.
         """
         self.model = model
         self.threshold = threshold
@@ -130,35 +121,24 @@ class CustomModelWrapper(mlflow.pyfunc.PythonModel):
     def predict(self, context, model_input):
         """
         Prédit les classes des échantillons en utilisant le seuil personnalisé.
-
-        Paramètres:
-        context (object): Le contexte de la prédiction. Non utilisé dans
-        cette méthode.
-        model_input (DataFrame): Les échantillons à prédire.
-
-        Retourne:
-        array: Les prédictions de classe pour les échantillons.
         """
+        print("lancement méthode predict")
         probabilities = self.model.predict_proba(model_input)
+        print("probabilities dans methode predict: ", probabilities)
         prediction = (probabilities[:, 1] >= self.threshold).astype(int)
+        print("prediction: ", prediction)
         return prediction
 
     def predict_proba(self, model_input, context=None):
         """
         Prédit les probabilités des classes pour les échantillons.
-
-        Paramètres:
-        model_input (DataFrame): Les échantillons à prédire.
-        context (object, optionnel): Le contexte de la prédiction. Non
-        utilisé dans cette méthode.
-
-        Retourne:
-        array: Les probabilités de classe pour les échantillons.
         """
+        print("lancement méthode predict_proba")
         probabilities = self.model.predict_proba(model_input)[0]
+        print("probabilities dans methode predict_proba: ", probabilities)
         return probabilities
 
-# ====================== étape 5 : Fonctions ============================
+# ====================== étape 6 : Fonctions ============================
 
 def get_prediction(df, seuil_predict=0.08):
     """
@@ -229,7 +209,7 @@ def get_top_features(df, shap_values_class_1_2d, nbr_feature=5):
 
     return top_features, shap_values_df
 
-# ======================== étape 6 : Routes ==========================
+# ======================== étape 7 : Routes ==========================
 
 @app.route('/', methods=['GET'])
 def home():
@@ -411,7 +391,7 @@ def feature_importance_globale():
 
     return send_file(buf, mimetype='image/png')
 
-# =================== étape 7 : Run de l'API ==========================
+# =================== étape 8 : Run de l'API ==========================
 
 # Exécution de l'application Flask si le script est exécuté directement
 if __name__ == '__main__':
