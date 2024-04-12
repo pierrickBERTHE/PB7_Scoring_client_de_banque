@@ -22,6 +22,9 @@ from io import BytesIO
 
 # ================= étape 2 : Chemins environnement ========================
 
+# Indicateur pour savoir si l'API est sur le cloud ou en local
+IS_API_ON_CLOUD = True
+
 # Titre de l'application
 st.title('Projet 7\n')
 st.title('Élaborez le modèle de scoring - Dashboard\n')
@@ -30,11 +33,10 @@ st.title('Élaborez le modèle de scoring - Dashboard\n')
 print("os.getcwd():",os.getcwd(), "\n")
 
 # URL de l'API Flask (local ou distant)
-hostname = socket.gethostname()
-if hostname in ['ASUS-Vivobook-Pierrick']:
-    URL_API = 'http://127.0.0.1:6000'
-else:
+if IS_API_ON_CLOUD:
     URL_API = 'http://pierrickberthe.eu.pythonanywhere.com'
+else:
+    URL_API = 'http://127.0.0.1:6000'
 print("URL_API:",URL_API, "\n")
 
 # URL de l'API pour les requêtes POST
