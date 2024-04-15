@@ -23,6 +23,12 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
 
+# Afficher toutes les variables d'environnement
+print("\n---Variables d'environnement:----")
+for key, value in os.environ.items():
+    print(f"{key}: {value}")
+print("---FIN Variables d'environnement:----\n")
+
 # ====================== étape 2 : Lancement API ============================
 
 def create_app():
@@ -396,7 +402,8 @@ def feature_importance_globale():
 # Exécution de l'application Flask si le script est exécuté directement
 if __name__ == '__main__':
     try:
-        app.run(port=6000)
+        # app.run(port=6000)
+        app.run()
     except SystemExit as e:
         print(f"SystemExit exception: {e}")
         print("Le programme n'a pas pu démarrer le serveur Flask.")
