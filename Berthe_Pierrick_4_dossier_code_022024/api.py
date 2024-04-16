@@ -12,6 +12,7 @@ URL de l'API : http://pierrickberthe.eu.pythonanywhere.com/
 # ============== étape 1 : Importation des librairies ====================
 
 from flask import Flask, request, jsonify, send_file
+from matplotlib import backend_bases
 import pandas as pd
 import joblib
 import os
@@ -23,11 +24,19 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
 
+# Afficher le nombre de coeurs de la machine
+print("\n---Nombre CPU:----")
+print(joblib.cpu_count())
+
 # Afficher toutes les variables d'environnement
 print("\n---Variables d'environnement:----")
 for key, value in os.environ.items():
     print(f"{key}: {value}")
 print("---FIN Variables d'environnement:----\n")
+
+# Nombre de cœurs utilisés par joblib
+os.environ['LOKY_MAX_CPU_COUNT'] = '1'
+print("LOKY_MAX_CPU_COUNT: ", os.environ['LOKY_MAX_CPU_COUNT'])
 
 # ====================== étape 2 : Lancement API ============================
 
@@ -124,7 +133,7 @@ class CustomModelWrapper(mlflow.pyfunc.PythonModel):
         self.model = model
         self.threshold = threshold
 
-    def predict(self, context, model_input):
+    def predict(self, model_input):
         """
         Prédit les classes des échantillons en utilisant le seuil personnalisé.
         """
@@ -135,7 +144,7 @@ class CustomModelWrapper(mlflow.pyfunc.PythonModel):
         print("prediction: ", prediction)
         return prediction
 
-    def predict_proba(self, model_input, context=None):
+    def predict_proba(self, model_input):
         """
         Prédit les probabilités des classes pour les échantillons.
         """
@@ -156,21 +165,14 @@ def get_prediction(df, seuil_predict=0.08):
 
     print("Prédiction de la classe de l'instance")
     print("Données d'entrée : ", df)
-    # prediction = wrapper.predict(None, df)[0]
-    prediction = wrapper.predict(None, df)
+    prediction = wrapper.predict(df)
     print("Prédiction effectuée : ", prediction)
-
-    # ...
 
     # Prédire la probabilité de la classe 1
     print("Prédiction de la probabilité de la classe 1")
     # prediction_proba = wrapper.predict_proba(df)[0]
     proba_class_1 = wrapper.predict_proba(df)[1]
     print("Prédiction de la proba de la classe 1 effectuée : ", proba_class_1)
-
-    # # Sélectionner la probabilité de la classe 1
-    # print("Sélection de la probabilité de la classe 1")
-    # proba_class_1 = prediction_proba[1]
 
     return prediction, proba_class_1
 
@@ -402,8 +404,8 @@ def feature_importance_globale():
 # Exécution de l'application Flask si le script est exécuté directement
 if __name__ == '__main__':
     try:
-        # app.run(port=6000)
-        app.run()
+        app.run(port=6000)
+        # app.run()
     except SystemExit as e:
         print(f"SystemExit exception: {e}")
         print("Le programme n'a pas pu démarrer le serveur Flask.")

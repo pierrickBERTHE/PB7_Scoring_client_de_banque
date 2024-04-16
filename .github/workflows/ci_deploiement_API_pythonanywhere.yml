@@ -97,6 +97,7 @@ jobs:
           cd Berthe_Pierrick_4_dossier_code_022024
           pwd
           ls
+          echo "Contents of site-packages: $(ls -l env/lib/python*/site-packages)"
 
     # - name: Re-Deploy Pythonanywhere Flask API
     #   uses: umuttopalak/pythonanywhere-deploy-action@v1.0.0
