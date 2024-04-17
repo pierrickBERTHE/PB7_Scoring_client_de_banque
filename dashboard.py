@@ -1,5 +1,6 @@
 """
-Description: Ce fichier contient le dashboard de l'application Streamlit.
+Description: Ce fichier contient le dashboard de l'application Streamlit
+basique.
 
 Author: Pierrick Berthe
 Date: 2024-04-04
@@ -8,17 +9,11 @@ Date: 2024-04-04
 # ============== étape 1 : Importation des librairies ====================
 
 import pandas as pd
-import numpy as np
 import requests
 import os
-import shap
-import matplotlib.pyplot as plt
 import streamlit as st
 from memory_profiler import profile
-import socket
 import json
-from PIL import Image
-from io import BytesIO
 
 # ================= étape 2 : Chemins environnement ========================
 
@@ -42,10 +37,8 @@ print("URL_API:",URL_API, "\n")
 # URL de l'API pour les requêtes POST
 URL_API_CLIENT_SELECTION = f'{URL_API}/client_selection'
 URL_API_CLIENT_EXTRACTION= f'{URL_API}/client_extraction'
-URL_API_PREDICT = f'{URL_API}/predict'
-URL_API_FI_GLOBALE= f'{URL_API}/feature_importance_globale'
 
-# ====================== étape 5 : Fonctions ============================
+# ====================== étape 3 : Fonctions ============================
 
 def fetch_data_and_client_selection(url):
     """
@@ -104,41 +97,7 @@ def get_client_data(url, client_id):
         return None
 
 
-@st.cache_resource
-def request_prediction(url, data):
-    """
-    Envoie une requête POST de prédiction à un service web.
-    """
-    # ESSAI de la requête POST (timeout de 600 secondes)
-    try:
-        response = requests.post(url, json=data.to_dict(), timeout=300)
-        response.raise_for_status()
-        return response.json()
-
-    # Gestion des autres erreurs
-    except Exception as err:
-        print(f'Erreur dans la requête POST de prediction: {err}')
-        return None
-
-
-def calcule_fi_globale(url):
-    """
-    Récupère le calcul de la feature importance globale et affiche le 
-    summary plot en image. 
-    """
-    # Envoi de la requête POST
-    response = requests.post(url)
-
-    # SI requete OK => extraction, ouverture image et affichage
-    if response.status_code == 200:
-        image_bytes = BytesIO(response.content)
-        img = Image.open(image_bytes)
-        st.image(img)
-
-    else:
-        print("Erreur lors de la récupération de l'image.")
-
-# ============= étape 6 : Fonction principale du dashboard ==================
+# ============= étape 4 : Fonction principale du dashboard ==================
 
 @profile
 def main():
@@ -146,76 +105,12 @@ def main():
     Fonction principale de l'application Streamlit.
     """
     # Récupération des clients et sélection d'un client
-    client_id = fetch_data_and_client_selection(
-        URL_API_CLIENT_SELECTION
-    )
+    client_id = fetch_data_and_client_selection(URL_API_CLIENT_SELECTION)
     
     # Récupération des données du client
     client_data = get_client_data(URL_API_CLIENT_EXTRACTION, client_id)
 
-    # Bouton pour calculer la prédiction => envoi de la requête POST
-    if st.button('Calculer la prédiction'):
-        response = request_prediction(URL_API_PREDICT, client_data)
-
-        # Affichage d'une erreur si la prédiction est None
-        if response is None:
-            st.write('Erreur de prédiction\n')
-
-        # Affichage de la prédiction en français
-        else:
-            if response["prediction"]["prediction"] == 0:
-                st.markdown(
-                    '<div style="background-color: #98FB98; padding: 10px;'
-                    'border-radius: 5px; color: #000000;"'
-                    '>Le prêt est accordé.</div>',
-                    unsafe_allow_html=True
-                )
-            else:
-                st.markdown(
-                    '<div style="background-color: #FF6347; padding: 10px;'
-                    'border-radius: 5px; color: #000000;"'
-                    '>Le prêt n\'est pas accordé.</div>',
-                    unsafe_allow_html=True
-                )
-
-            # ajouter un espace
-            st.write('')
-
-            # Affichage de la prédiction
-            ligne_prediction = {
-                'explainer': response['prediction']['explainer'][1],
-                'prediction': response['prediction']['prediction'],
-                'probabilité': response['prediction']['probabilité']
-            }
-            st.dataframe(ligne_prediction)
-
-            # Transformation des données pour SHAP en array puis en dataframe
-            shap_values_subset_array = np.array(
-                response['feature_importance_locale']['shap_values_subset']
-            )
-            client_data_subset_df = pd.DataFrame(
-                [response['feature_importance_locale']['client_data_subset']],
-                columns=response['feature_importance_locale']['top_features']
-            )
-
-            # Affichage feature importance locale
-            st.write('Feature importance locale :')
-            shap.force_plot(
-                response['prediction']["explainer"][1],
-                shap_values_subset_array,
-                client_data_subset_df,
-                matplotlib=True
-            )
-
-            # Obtention de la figure actuelle et affichage streamlit
-            fig = plt.gcf()
-            st.pyplot(fig)
-
-            # Calcule et affichage de feature importance globale
-            st.write('Feature importance globale :')
-            calcule_fi_globale(URL_API_FI_GLOBALE)
-
-# =================== étape 7 : Run du dashboard ==========================
+# =================== étape 5 : Run du dashboard ==========================
 
 if __name__ == '__main__':
     main()

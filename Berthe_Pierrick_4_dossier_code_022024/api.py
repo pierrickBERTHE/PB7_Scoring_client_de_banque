@@ -8,11 +8,9 @@ Date: 2024-04-04
 URL de l'API : http://pierrickberthe.eu.pythonanywhere.com/
 
 """
-
 # ============== étape 1 : Importation des librairies ====================
 
 from flask import Flask, request, jsonify, send_file
-from matplotlib import backend_bases
 import pandas as pd
 import joblib
 import os
@@ -38,6 +36,7 @@ print("---FIN Variables d'environnement:----\n")
 os.environ['LOKY_MAX_CPU_COUNT'] = '1'
 print("LOKY_MAX_CPU_COUNT: ", os.environ['LOKY_MAX_CPU_COUNT'])
 
+
 # ====================== étape 2 : Lancement API ============================
 
 def create_app():
@@ -53,12 +52,14 @@ app = create_app()
 print('API Flask démarrée\n')
 print("getcwd:",os.getcwd(), "\n")
 
+
 # ====================== étape 3 : Fichier data ============================
 
 # Nom du fichier de données
 file_name = "application_train_cleaned_frac_10%"
 
-# ====================== étape 3 : chemins ============================
+
+# ====================== étape 4 : chemins ============================
 
 def create_path(directory, filename):
     path = os.path.join(directory, filename)
@@ -72,13 +73,15 @@ MODEL_PATH = create_path("mlflow_model", "model.pkl")
 DATA_PATH_ZIP = create_path("data/cleaned", file_name + ".zip")
 DATA_FILE_CSV = file_name + ".csv"
 
-# ================== étape 3 : Chargement du modèle ========================
+
+# ================== étape 5 : Chargement du modèle ========================
 
 # Chargement du modèle pré-entraîné
 model = joblib.load(MODEL_PATH)
 print('Modèle chargé\n')
 
-# ==================== étape 4 : chargement data ==========================
+
+# ==================== étape 6 : chargement data ==========================
 
 def load_data(file_name_zip, file_name_csv, _model):
     """
@@ -119,7 +122,8 @@ def load_data(file_name_zip, file_name_csv, _model):
 data = load_data(DATA_PATH_ZIP, DATA_FILE_CSV, model)
 print('chargement des données terminé\n')
 
-# ====== étape 5 : Wrapper pour prediction avec seuil personalisé ===========
+
+# ====== étape 7 : Wrapper pour prediction avec seuil personalisé ===========
 
 class CustomModelWrapper(mlflow.pyfunc.PythonModel):
     """
@@ -137,42 +141,32 @@ class CustomModelWrapper(mlflow.pyfunc.PythonModel):
         """
         Prédit les classes des échantillons en utilisant le seuil personnalisé.
         """
-        print("lancement méthode predict")
         probabilities = self.model.predict_proba(model_input)
-        print("probabilities dans methode predict: ", probabilities)
         prediction = (probabilities[:, 1] >= self.threshold).astype(int)
-        print("prediction: ", prediction)
         return prediction
 
     def predict_proba(self, model_input):
         """
         Prédit les probabilités des classes pour les échantillons.
         """
-        print("lancement méthode predict_proba")
         probabilities = self.model.predict_proba(model_input)[0]
-        print("probabilities dans methode predict_proba: ", probabilities)
         return probabilities
 
-# ====================== étape 6 : Fonctions ============================
+
+# ====================== étape 8 : Fonctions ============================
 
 def get_prediction(df, seuil_predict=0.08):
     """
     Prédit la classe de l'instance en utilisant le modèle pré-entraîné.
     """
-    print("Création du wrapper pour le modèle avec un seuil personnalisé")
+    # Créer un wrapper pour le modèle avec un seuil personnalisé
     wrapper = CustomModelWrapper(model, threshold=seuil_predict)
-    print("Wrapper créé")
 
-    print("Prédiction de la classe de l'instance")
-    print("Données d'entrée : ", df)
+    # Prédire la classe de l'instance
     prediction = wrapper.predict(df)
-    print("Prédiction effectuée : ", prediction)
 
     # Prédire la probabilité de la classe 1
-    print("Prédiction de la probabilité de la classe 1")
-    # prediction_proba = wrapper.predict_proba(df)[0]
     proba_class_1 = wrapper.predict_proba(df)[1]
-    print("Prédiction de la proba de la classe 1 effectuée : ", proba_class_1)
 
     return prediction, proba_class_1
 
@@ -222,7 +216,8 @@ def get_top_features(df, shap_values_class_1_2d, nbr_feature=5):
 
     return top_features, shap_values_df
 
-# ======================== étape 7 : Routes ==========================
+
+# ======================== étape 9 : Routes ==========================
 
 @app.route('/', methods=['GET'])
 def home():
@@ -304,6 +299,7 @@ def predict():
         # Prédire la classe de l'instance
         print("prediction en cours")
         prediction, proba_class_1 = get_prediction(df)
+        print("prediction :", prediction)
 
         # Extraire le dernier estimateur du pipeline
         final_estimator = model[-1]
@@ -404,7 +400,8 @@ def feature_importance_globale():
 
     return send_file(buf, mimetype='image/png')
 
-# =================== étape 8 : Run de l'API ==========================
+
+# =================== étape 10 : Run de l'API ==========================
 
 # Exécution de l'application Flask si le script est exécuté directement
 if __name__ == '__main__':

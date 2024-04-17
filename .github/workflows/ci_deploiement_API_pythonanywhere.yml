@@ -9,6 +9,8 @@ on:
 
 # 2 jobs dans le workflow : build & deploy
 jobs:
+
+  # Build sur machine virtuelle
   build:
     runs-on: ubuntu-latest
 
@@ -55,23 +57,12 @@ jobs:
         cd Berthe_Pierrick_4_dossier_code_022024 
         python tests_unitaires/test_unitaire_api.py
 
-    # - name: save_artifact_for_deploy_job
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: API_pythonanywhere
-    #     path: Berthe_Pierrick_4_dossier_code_022024
-
+  # Deploy sur cloud pythonanywhere par ssh
   deploy:
     runs-on: ubuntu-latest
     needs: build
 
     steps:
-    # - name: download_artifact_for_deploy_job
-    #   uses: actions/download-artifact@v4
-    #   with:
-    #     name: API_pythonanywhere
-    #     path: Berthe_Pierrick_4_dossier_code_022024
-
     - name: testing pythonanywhere server ssh connection
       uses: appleboy/ssh-action@master
       with:
@@ -98,12 +89,3 @@ jobs:
           pwd
           ls
           echo "Contents of site-packages: $(ls -l env/lib/python*/site-packages)"
-
-    # - name: Re-Deploy Pythonanywhere Flask API
-    #   uses: umuttopalak/pythonanywhere-deploy-action@v1.0.0
-    #   with:
-    #     host: 'www.eu.pythonanywhere.com'
-    #     username: ${{ secrets.USERNAME }}
-    #     api_token:  ${{ secrets.API_TOKEN }} 
-    #     domain_name: pierrickberthe.eu.pythonanywhere.com/
-    #     console_id: ${{ secrets.CONSOLE_ID }}
