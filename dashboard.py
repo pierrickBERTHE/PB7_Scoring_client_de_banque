@@ -109,9 +109,9 @@ def request_prediction(url, data):
     """
     Envoie une requête POST de prédiction à un service web.
     """
-    # ESSAI de la requête POST (timeout de 120 secondes)
+    # ESSAI de la requête POST (timeout de 600 secondes)
     try:
-        response = requests.post(url, json=data.to_dict(), timeout=120)
+        response = requests.post(url, json=data.to_dict(), timeout=300)
         response.raise_for_status()
         return response.json()
 

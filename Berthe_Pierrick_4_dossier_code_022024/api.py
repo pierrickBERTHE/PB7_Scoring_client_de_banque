@@ -182,12 +182,17 @@ def get_shap_values(df, final_estimator):
     Calcule les valeurs SHAP pour l'instance donnée.
     """
     # Créer un explainer SHAP pour le dernier estimateur du pipeline
+    print("Création de l'explainer SHAP")
     explainer = shap.TreeExplainer(final_estimator)
 
     # Calculer les valeurs SHAP pour l'instance donnée
+    print("Calcul de explainer.shap_values")
+    print("Données d'entrée : ", df)
+    print("explainer : ", explainer)
     shap_values = explainer.shap_values(df)
 
     # Sélectionner les valeurs SHAP pour la classe 1
+    print("Sélection des valeurs SHAP pour la classe 1")
     # shap_values_class_1 = shap_values[1][0]
     shap_values_class_1 = shap_values[0]
 
