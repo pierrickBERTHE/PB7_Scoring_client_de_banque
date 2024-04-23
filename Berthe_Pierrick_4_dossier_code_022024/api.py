@@ -10,6 +10,7 @@ URL de l'API : http://pierrickberthe.eu.pythonanywhere.com/
 """
 # ============== étape 1 : Importation des librairies ====================
 
+import flask
 from flask import Flask, request, jsonify, send_file
 import pandas as pd
 import joblib
@@ -20,6 +21,7 @@ import zipfile
 from io import BytesIO
 import matplotlib.pyplot as plt
 import matplotlib
+import sys
 matplotlib.use('Agg')
 
 # Afficher le nombre de coeurs de la machine
@@ -35,6 +37,20 @@ print("---FIN Variables d'environnement:----\n")
 # Nombre de cœurs utilisés par joblib
 os.environ['LOKY_MAX_CPU_COUNT'] = '1'
 print("LOKY_MAX_CPU_COUNT: ", os.environ['LOKY_MAX_CPU_COUNT'])
+
+# Versions
+print("\nVersion des librairies utilisees :")
+print("Python        : " + sys.version)
+print("Flask         : " + flask.__version__)
+print("io            : No module version")
+print("Joblib        : " + joblib.__version__)
+print("Matplotlib    : " + matplotlib.__version__)
+print("MlFlow        : " + mlflow.__version__)
+print("os            : No module version")
+print("Pandas        : " + pd.__version__)
+print("Shap          : " + shap.__version__)
+print("zipfile       : No module version")
+print("\n")
 
 
 # ====================== étape 2 : Lancement API ============================
