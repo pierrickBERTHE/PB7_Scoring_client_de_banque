@@ -72,7 +72,7 @@ print("getcwd:",os.getcwd(), "\n")
 # ====================== étape 3 : Fichier data ============================
 
 # Nom du fichier de données
-file_name = "application_train_cleaned_frac_10%"
+file_name = "application_train_cleaned_1_line"
 
 
 # ====================== étape 4 : chemins ============================
@@ -171,7 +171,7 @@ class CustomModelWrapper(mlflow.pyfunc.PythonModel):
 
 # ====================== étape 8 : Fonctions ============================
 
-def get_prediction(df, seuil_predict=0.08):
+def get_prediction(df, seuil_predict):
     """
     Prédit la classe de l'instance en utilisant le modèle pré-entraîné.
     """
@@ -179,12 +179,12 @@ def get_prediction(df, seuil_predict=0.08):
     wrapper = CustomModelWrapper(model, threshold=seuil_predict)
 
     # Prédire la classe de l'instance
-    prediction = wrapper.predict(df)
+    prediction = wrapper.predict(df)[0]
 
     # Prédire la probabilité de la classe 1
-    proba_class_1 = wrapper.predict_proba(df)[1]
+    prediction_proba = wrapper.predict_proba(df)
 
-    return prediction, proba_class_1
+    return prediction, prediction_proba
 
 
 def get_shap_values(df, final_estimator):
@@ -201,12 +201,7 @@ def get_shap_values(df, final_estimator):
     print("explainer : ", explainer)
     shap_values = explainer.shap_values(df)
 
-    # Sélectionner les valeurs SHAP pour la classe 1
-    print("Sélection des valeurs SHAP pour la classe 1")
-    # shap_values_class_1 = shap_values[1][0]
-    shap_values_class_1 = shap_values[0]
-
-    return explainer, shap_values_class_1
+    return explainer, shap_values
 
 
 def get_top_features(df, shap_values_class_1_2d, nbr_feature=5):
@@ -314,19 +309,62 @@ def predict():
 
         # Prédire la classe de l'instance
         print("prediction en cours")
-        prediction, proba_class_1 = get_prediction(df)
+        seuil_predict = 0.08
+        prediction, prediction_proba = get_prediction(
+            df,
+            seuil_predict=seuil_predict
+        )
         print("prediction :", prediction)
+
+        # Préparer la réponse
+        print("Préparation de la réponse")
+        response = {
+            'prediction': prediction.tolist(),
+            'proba_0': round((prediction_proba[0]), 2).tolist(),
+            'proba_1': round((prediction_proba[1]), 2).tolist(),
+            'seuil_predict': seuil_predict
+    }
+        # Retour de la prédiction au format JSON
+        return jsonify(response)
+
+    # Gestion des erreurs (erreur 500 si erreur interne)
+    except Exception as e:
+        print(f"Erreur lors de la prédiction: {e}")
+        return jsonify(
+            {'error': 'Internal Server Error', 'message': str(e)}
+        ), 500
+
+
+@app.route('/feature_importance_locale', methods=['POST'])
+def feature_importance_locale():
+    """
+    Retourne l'image de feature importance locale.
+    """
+
+    # Récupération des données au format JSON
+    data = request.get_json()
+
+    # Vérification de la présence de données (erreur 415 si non présentes)
+    if data is None:
+        return jsonify(
+            {'error': 'Bad Request', 'message': 'No input data provided'}
+        ), 415
+
+    try:
+        # Convertir les données en DataFrame Pandas
+        print("Conversion des données en DataFrame Pandas")
+        df = pd.DataFrame(data)
 
         # Extraire le dernier estimateur du pipeline
         final_estimator = model[-1]
 
         # Calculer les valeurs SHAP pour l'instance donnée
         print("Calcul des valeurs SHAP")
-        explainer, shap_values_class_1 = get_shap_values(df, final_estimator)
+        explainer, shap_values = get_shap_values(df, final_estimator)
 
         # Convertir le tableau 1D en tableau 2D pour créer un DataFrame
         print("reshape des valeurs SHAP")
-        shap_values_class_1_2d = shap_values_class_1.reshape(1, -1)
+        shap_values_class_1_2d = shap_values[1].reshape(1, -1)
 
         # Extraire les caractéristiques les plus importantes
         print("Extraction des caractéristiques les plus importantes")
@@ -343,18 +381,8 @@ def predict():
         # Préparer la réponse
         print("Préparation de la réponse")
         response = {
-            'prediction': {
-                # 'explainer' : explainer.expected_value[1],
-                'explainer' : explainer.expected_value,
-                'prediction': prediction.tolist(),
-                'probabilité': round((proba_class_1 * 100), 2).tolist()
-            },
-            'feature_importance': {
-                'shap_values': shap_values_class_1_2d[0].tolist(),
-                'feature_names': df.columns.tolist(),
-                'feature_values': df.values.tolist()[0],
-            },
-            'feature_importance_locale': {
+            'explainer' : explainer.expected_value,
+            'fi_locale_subset': {
                 'top_features': client_data_subset.columns.tolist(),
                 'shap_values_subset' : shap_values_subset.tolist(),
                 'client_data_subset': client_data_subset.values.tolist()[0]
