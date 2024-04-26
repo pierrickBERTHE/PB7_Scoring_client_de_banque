@@ -9,6 +9,7 @@ URL de l'API : http://pierrickberthe.eu.pythonanywhere.com/
 
 """
 # ============== étape 1 : Importation des librairies ====================
+print("test git pull API OK?")
 
 import flask
 from flask import Flask, request, jsonify, send_file
