@@ -6,6 +6,7 @@ Author: Pierrick Berthe
 Date: 2024-04-04
 
 URL de l'API : http://pierrickberthe.eu.pythonanywhere.com/
+salut kevin
 
 """
 # ============== étape 1 : Importation des librairies ====================
