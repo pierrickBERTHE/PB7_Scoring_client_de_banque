@@ -194,7 +194,7 @@ def get_shap_values(df, final_estimator):
     """
     # Créer un explainer SHAP pour le dernier estimateur du pipeline
     print("Création de l'explainer SHAP")
-    explainer = shap.TreeExplainer(final_estimator)
+    explainer = shap.TreeExplainer(final_estimator, n_jobs=1)
 
     # Calculer les valeurs SHAP pour l'instance donnée
     print("Calcul de explainer.shap_values")
@@ -395,7 +395,7 @@ def feature_importance_locale():
 
     # Gestion des erreurs (erreur 500 si erreur interne)
     except Exception as e:
-        print(f"Erreur lors de la prédiction: {e}")
+        print(f"Erreur lors de la feature importance locale: {e}")
         return jsonify(
             {'error': 'Internal Server Error', 'message': str(e)}
         ), 500
