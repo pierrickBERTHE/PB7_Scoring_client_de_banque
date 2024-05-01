@@ -10,6 +10,7 @@ URL de l'API : https://api-pb-e85d72620dec.herokuapp.com/
 """
 # ============== étape 1 : Importation des librairies ====================
 
+from unittest import result
 import flask
 from flask import Flask, request, jsonify, send_file
 import pandas as pd
@@ -23,20 +24,6 @@ import matplotlib.pyplot as plt
 import matplotlib
 import sys
 matplotlib.use('Agg')
-
-# # Afficher le nombre de coeurs de la machine
-# print("\n---Nombre CPU:----")
-# print(joblib.cpu_count())
-
-# # Afficher toutes les variables d'environnement
-# print("\n---Variables d'environnement:----")
-# for key, value in os.environ.items():
-#     print(f"{key}: {value}")
-# print("---FIN Variables d'environnement:----\n")
-
-# # Nombre de cœurs utilisés par joblib
-# os.environ['LOKY_MAX_CPU_COUNT'] = '1'
-# print("LOKY_MAX_CPU_COUNT: ", os.environ['LOKY_MAX_CPU_COUNT'])
 
 # Versions
 print("\nVersion des librairies utilisees :")
@@ -116,11 +103,12 @@ def load_data(file_name_zip, file_name_csv, _model):
     # Lire le fichier CSV sans la première colonne
     data_df = pd.read_csv(file_name_zip, usecols=cols)
 
-    # Isolement de la colonne SK_ID_CURR
+    # Isolement de la colonne SK_ID_CURR et TARGET
     sk_id_curr = data_df['SK_ID_CURR']
+    target = data_df['TARGET']
 
     # Suppression des colonnes TARGET et SK_ID_CURR
-    data_df_dropped = data_df.drop(columns=["TARGET", "SK_ID_CURR"])
+    data_df_dropped = data_df.drop(columns=["SK_ID_CURR", "TARGET"])
 
     # Imputation des valeurs manquantes (preprocessing du modele)
     data_array = _model.named_steps['preprocess'].transform(data_df_dropped)
@@ -128,8 +116,9 @@ def load_data(file_name_zip, file_name_csv, _model):
     # Création d'un DataFrame à partir du tableau numpy
     data_df_new = pd.DataFrame(data_array, columns=data_df_dropped.columns)
 
-    # Re-insertion de la colonne SK_ID_CURR
+    # Re-insertion de la colonne SK_ID_CURR et TARGET
     data_df_new['SK_ID_CURR'] = sk_id_curr
+    data_df_new['TARGET'] = target
 
     return data_df_new
 
@@ -443,6 +432,43 @@ def feature_importance_globale():
     buf.seek(0)
 
     return send_file(buf, mimetype='image/png')
+
+
+@app.route('/feature_plot', methods=['POST'])
+def feature_plot():
+    """
+    Retourne les données du client en fonction de l'ID du client
+    """ 
+
+    # Récupération des données au format JSON
+    data_json = request.get_json()
+
+    # Vérification de la présence de données (erreur 400 si non présentes)
+    if 'client_id' not in data_json:
+        return jsonify({'error': 'No client_id provided'}), 400
+    
+    if 'feat_to_display' not in data_json:
+        return jsonify({'error': 'No feat_to_display provided'}), 400
+
+    # Récupération des données
+    client_id = data_json["client_id"]
+    feat_to_display = data_json["feat_to_display"]
+
+    # Filtrer les données pour le client donné pour la feature donnée
+    client_data = data[data['client_id'] == client_id][feat_to_display]
+
+    # Filtrer les données pour les clients par classe pour la feature donnée
+    client_0_data = data[data['TARGET'] == 0][feat_to_display]
+    client_1_data = data[data['TARGET'] == 1][feat_to_display]
+
+    # Créer un dictionnaire pour stocker les données
+    result = {
+        'client_data': client_data.tolist(),
+        'client_0_data': client_0_data.tolist(),
+        'client_1_data': client_1_data.tolist()
+    }
+
+    return jsonify(result)
 
 
 # =================== étape 10 : Run de l'API ==========================
