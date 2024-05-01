@@ -59,7 +59,7 @@ print("getcwd:",os.getcwd(), "\n")
 # ====================== étape 3 : Fichier data ============================
 
 # Nom du fichier de données
-file_name = "application_train_cleaned_1_line"
+file_name = "application_train_cleaned_frac_1%"
 
 
 # ====================== étape 4 : chemins ============================
