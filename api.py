@@ -114,17 +114,23 @@ def load_data(file_name_zip, file_name_csv, _model):
     data_array = _model.named_steps['preprocess'].transform(data_df_dropped)
 
     # Création d'un DataFrame à partir du tableau numpy
-    data_df_new = pd.DataFrame(data_array, columns=data_df_dropped.columns)
+    data_preprocessed_df = pd.DataFrame(
+        data_array,
+        columns=data_df_dropped.columns
+    )
 
-    # Re-insertion de la colonne SK_ID_CURR et TARGET
-    data_df_new['SK_ID_CURR'] = sk_id_curr
-    data_df_new['TARGET'] = target
+    # Re-insertion des colonne SK_ID_CURR et TARGET 
+    data_preprocessed_df['SK_ID_CURR'] = sk_id_curr
+    data_preprocessed_df['TARGET'] = target
 
-    return data_df_new
+    data_df_dropped['SK_ID_CURR'] = sk_id_curr
+    data_df_dropped['TARGET'] = target
+
+    return data_preprocessed_df, data_df_dropped
 
 
 # Chargement des données
-data = load_data(DATA_PATH_ZIP, DATA_FILE_CSV, model)
+data, data_brutes = load_data(DATA_PATH_ZIP, DATA_FILE_CSV, model)
 print('chargement des données terminé\n')
 
 
@@ -253,6 +259,17 @@ def client_selection():
     return sk_id_curr_all.to_json(orient='records')
 
 
+@app.route('/feature_selection', methods=['POST'])
+def feature_selection():
+    """
+    Retourne les noms des features pour la sélection (sauf les feat TARGET et
+    id des clients)
+    """
+    data_dropped = data.drop(columns=['SK_ID_CURR', 'TARGET'])
+    feat_name_all = data_dropped.columns
+    return feat_name_all.to_list()
+
+
 @app.route('/client_extraction', methods=['POST'])
 def client_data_extraction():
     """
@@ -264,6 +281,7 @@ def client_data_extraction():
 
     client_id = data_json["client_id"]
     client_data = data[data['SK_ID_CURR'] == client_id]
+    client_data_brutes = data_brutes[data_brutes['SK_ID_CURR'] == client_id]
 
     if client_data.empty:
         return jsonify({'error': 'No data found for this client_id'}), 404
@@ -271,7 +289,25 @@ def client_data_extraction():
     nan_client = int(client_data.isna().sum().sum())
     return jsonify({
         'client_data': client_data.to_json(orient='records'),
+        'client_data_brutes': client_data_brutes.to_json(orient='records'),
         'nan_client': nan_client
+    })
+
+
+@app.route('/feat_extraction', methods=['POST'])
+def feat_data_extraction():
+    """
+    Retourne les données de la feature en fonction du nom de la feature
+    """ 
+    data_json = request.get_json()
+    if 'feature_name' not in data_json:
+        return jsonify({'error': 'No feature_name provided'}), 400
+
+    feature_name = data_json["feature_name"]
+    feat_data_brutes = data_brutes[feature_name]
+
+    return jsonify({
+        'feat_data_brutes': feat_data_brutes.to_json(orient='records'),
     })
 
 
@@ -407,8 +443,8 @@ def feature_importance_globale():
         ), 400
 
     # Calculer les valeurs SHAP pour toutes les données
-    explainer = shap.TreeExplainer(model[-1])
-    data_dropped = data.drop(columns=['SK_ID_CURR'])
+    explainer = shap.TreeExplainer(model[-1], n_jobs=1)
+    data_dropped = data.drop(columns=['SK_ID_CURR', 'TARGET'])
     shap_values_all = explainer.shap_values(
         data_dropped,
         check_additivity=False
@@ -417,7 +453,8 @@ def feature_importance_globale():
     # Affichage feature importance globale
     shap.summary_plot(
         shap_values_all[1],
-        data.drop(columns=['SK_ID_CURR']),
+        data_dropped,
+        # data.drop(columns=['SK_ID_CURR']),
         plot_type='dot',
         show=False
     )
@@ -455,11 +492,13 @@ def feature_plot():
     feat_to_display = data_json["feat_to_display"]
 
     # Filtrer les données pour le client donné pour la feature donnée
-    client_data = data[data['client_id'] == client_id][feat_to_display]
+    client_data = (
+        data_brutes[data_brutes['SK_ID_CURR'] == client_id][feat_to_display]
+    )
 
     # Filtrer les données pour les clients par classe pour la feature donnée
-    client_0_data = data[data['TARGET'] == 0][feat_to_display]
-    client_1_data = data[data['TARGET'] == 1][feat_to_display]
+    client_0_data = data_brutes[data_brutes['TARGET'] == 0][feat_to_display]
+    client_1_data = data_brutes[data_brutes['TARGET'] == 1][feat_to_display]
 
     # Créer un dictionnaire pour stocker les données
     result = {
