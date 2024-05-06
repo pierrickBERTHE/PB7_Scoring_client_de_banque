@@ -23,6 +23,7 @@ from io import BytesIO
 import matplotlib.pyplot as plt
 import matplotlib
 import sys
+import numpy as np
 matplotlib.use('Agg')
 
 # Versions
@@ -70,7 +71,7 @@ def create_path(directory, filename):
     return path
 
 # Chemin du modèle pré-entraîné
-MODEL_PATH = create_path("mlflow_model", "model.pkl")
+MODEL_PATH = create_path("mlflow_model_RF", "model.pkl")
 
 # Chemin du fichier  contenant les données
 DATA_PATH_ZIP = create_path("data_heroku", file_name + ".zip")
@@ -187,13 +188,9 @@ def get_shap_values(df, final_estimator):
     Calcule les valeurs SHAP pour l'instance donnée.
     """
     # Créer un explainer SHAP pour le dernier estimateur du pipeline
-    print("Création de l'explainer SHAP")
     explainer = shap.TreeExplainer(final_estimator, n_jobs=1)
 
     # Calculer les valeurs SHAP pour l'instance donnée
-    print("Calcul de explainer.shap_values")
-    print("Données d'entrée : ", df)
-    print("explainer : ", explainer)
     shap_values = explainer.shap_values(df)
 
     return explainer, shap_values
@@ -329,20 +326,16 @@ def predict():
 
     try:
         # Convertir les données en DataFrame Pandas
-        print("Conversion des données en DataFrame Pandas")
         df = pd.DataFrame(data)
 
         # Prédire la classe de l'instance
-        print("prediction en cours")
-        seuil_predict = 0.08
+        seuil_predict = 0.43
         prediction, prediction_proba = get_prediction(
             df,
             seuil_predict=seuil_predict
         )
-        print("prediction :", prediction)
 
         # Préparer la réponse
-        print("Préparation de la réponse")
         response = {
             'prediction': prediction.tolist(),
             'proba_0': round((prediction_proba[0]), 2).tolist(),
@@ -377,36 +370,30 @@ def feature_importance_locale():
 
     try:
         # Convertir les données en DataFrame Pandas
-        print("Conversion des données en DataFrame Pandas")
         df = pd.DataFrame(data)
 
         # Extraire le dernier estimateur du pipeline
         final_estimator = model[-1]
 
         # Calculer les valeurs SHAP pour l'instance donnée
-        print("Calcul des valeurs SHAP")
         explainer, shap_values = get_shap_values(df, final_estimator)
 
         # Convertir le tableau 1D en tableau 2D pour créer un DataFrame
-        print("reshape des valeurs SHAP")
         shap_values_class_1_2d = shap_values[1].reshape(1, -1)
 
         # Extraire les caractéristiques les plus importantes
-        print("Extraction des caractéristiques les plus importantes")
         top_features, shap_values_df = get_top_features(
             df,
             shap_values_class_1_2d
         )
 
         # Sélectionner les top_features (arrondis)
-        print("Selection des top_features et des shap_values correspondants")
         client_data_subset = df[top_features].round(2)
         shap_values_subset = shap_values_df[top_features].values.round(2)[0]
 
         # Préparer la réponse
-        print("Préparation de la réponse")
         response = {
-            'explainer' : explainer.expected_value,
+            'explainer' : explainer.expected_value.tolist(),
             'fi_locale_subset': {
                 'top_features': client_data_subset.columns.tolist(),
                 'shap_values_subset' : shap_values_subset.tolist(),
@@ -454,7 +441,6 @@ def feature_importance_globale():
     shap.summary_plot(
         shap_values_all[1],
         data_dropped,
-        # data.drop(columns=['SK_ID_CURR']),
         plot_type='dot',
         show=False
     )
