@@ -1,4 +1,4 @@
-mlflow==2.11.1
+mlflow==2.12.1
 category-encoders==2.6.3
 cffi==1.16.0
 click==8.1.7
