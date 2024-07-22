@@ -41,6 +41,8 @@ Voici le diagramme entité-association des données (diagramme ERD) :
 
 # <span style='background:blue'>Fichiers du dépôt</span>
 
+- Dossier **.github/workflows** : fichier YAML pour le déploiement de l'API sur Heroku
+
 - Dossier **Data drift** : Notebook, script python et rapport HTML pour le suivi du drift de données
 
 - Dossier **data_heroku** : Dataset pour le déploiement de l'API sur Heroku
@@ -53,9 +55,9 @@ Voici le diagramme entité-association des données (diagramme ERD) :
     - Fichier explicatif dossier Github : PDF expliquant le contenu du dossier
 
 - **Procfile** : fichier pour le déploiement de l'API sur Heroku
-- 
+
 - **runtime.txt** : fichier pour le déploiement de l'API sur Heroku
-- 
+
 - **api.py** : Script python pour le déploiement de l'API sur Heroku
 
 - **dashboard.py** : Script python pour le test d'un dashboard Streamlit simpliste
