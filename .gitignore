@@ -3,7 +3,5 @@
 __pycache__/
 data/
 env-3.10.5/
-env-3.10.11/
-env-3.11.5/
 mlruns/
 NB_Aide/
