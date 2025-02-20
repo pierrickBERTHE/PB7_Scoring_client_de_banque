@@ -5,3 +5,4 @@ data/
 env-3.10.5/
 mlruns/
 NB_Aide/
+requirements.txt
